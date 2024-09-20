@@ -1,0 +1,15 @@
+__pycache__
+.DS_Store
+.venv
+
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.py
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
