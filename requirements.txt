@@ -59,6 +59,7 @@ pydantic==2.9.2
 pydantic_core==2.23.4
 Pygments==2.18.0
 pyparsing==3.1.4
+python-crfsuite==0.9.11
 python-dateutil==2.9.0.post0
 pytz==2024.2
 pyzmq==26.2.0
@@ -67,6 +68,8 @@ requests==2.32.3
 rich==13.8.1
 scikit-learn==1.5.2
 scipy==1.13.1
+seaborn==0.13.2
+setuptools==75.1.0
 shellingham==1.5.4
 six==1.16.0
 smart-open==7.0.4
@@ -75,6 +78,7 @@ spacy-legacy==3.0.12
 spacy-loggers==1.0.5
 srsly==2.4.8
 stack-data==0.6.3
+termcolor==2.4.0
 thinc==8.2.5
 threadpoolctl==3.5.0
 tifffile==2024.8.30
