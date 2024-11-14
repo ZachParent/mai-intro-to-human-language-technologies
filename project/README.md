@@ -67,3 +67,19 @@ proportional	in other case
 * Jaccard distance is not mandatory
 * Pearson is mandatory for scoring
 ![alt text](<Screenshot 2024-10-24 at 3.53.33 PM.png>)
+
+## Notes 2024-11-14
+
+* no need to compare NLTK with Spacy, just that it works
+* if we include a particular feature, we should justify how it improves the results
+* we can compute similarity in other ways, e.g. cosine similarity
+* random forest works pretty well
+* maybe try 3 different algorithms, one from each family
+* if you take a look at the papers, you'll see some teams considered the datasets
+* keep in mind that during the lab session, we have only used one dataset
+* but in the corpora, there are other types of datasets
+   * we could use different models for different datasets
+* we must get top 10% on the all set
+* the all set is a concatenation of all the datasets
+* feature selection is a good idea
+   * feature importance will vary widely
