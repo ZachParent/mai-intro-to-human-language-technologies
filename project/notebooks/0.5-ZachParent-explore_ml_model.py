@@ -17,14 +17,9 @@
 # %%
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.stats import pearsonr
-from nltk.metrics.distance import jaccard_distance
-import spacy
-import zp_ihlt_project
 from zp_ihlt_project.config import TRAIN_DATA_DIR
 from zp_ihlt_project.feature_extraction import generate_valid_permutations, apply_steps_and_compare
-import importlib
 
 # %%
 BASE_PATH = "./"
@@ -33,9 +28,7 @@ N_SAMPLES = np.iinfo(np.int32).max
 # N_SAMPLES = 100
 
 # %%
-dt = pd.read_csv(
-    f"{TRAIN_DATA_DIR}/STS.input.SMTeuroparl.txt", sep="\t", header=None
-)
+dt = pd.read_csv(f"{TRAIN_DATA_DIR}/STS.input.SMTeuroparl.txt", sep="\t", header=None)
 dt.columns = ["s1", "s2"]
 gs = pd.read_csv(f"{TRAIN_DATA_DIR}/STS.gs.SMTeuroparl.txt", sep="\t", header=None)
 dt["gs"] = gs[0]
@@ -57,7 +50,9 @@ dt.head()
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 
-X_train, X_test, y_train, y_test = train_test_split(dt[features], dt.gs, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(
+    dt[features], dt.gs, test_size=0.2, random_state=42
+)
 
 rf = RandomForestRegressor()
 rf.fit(X_train, y_train)

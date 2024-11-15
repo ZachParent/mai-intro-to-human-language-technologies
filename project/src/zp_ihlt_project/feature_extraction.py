@@ -8,31 +8,39 @@ from functools import cache
 
 nlp = spacy.load("en_core_web_sm")
 
+
 class PosTag(str):
     pass
 
+
 class Word(str):
     pass
+
 
 @cache
 def sentence_to_doc(sentence: str) -> spacy.tokens.doc.Doc:
     return nlp(sentence)
 
+
 @cache
 def get_tokens(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...]:
     return tuple(token for token in doc)
+
 
 @cache
 def get_pos_tags(tokens: Tuple[spacy.tokens.token.Token, ...]) -> Tuple[PosTag, ...]:
     return tuple(token.pos_ for token in tokens)
 
+
 @cache
 def lemmatize_tokens(tokens: Tuple[spacy.tokens.token.Token, ...]) -> Tuple[Word, ...]:
     return tuple(token.lemma_ for token in tokens)
 
+
 @cache
 def get_token_text(tokens: Tuple[spacy.tokens.token.Token, ...]) -> Tuple[Word, ...]:
     return tuple(token.text for token in tokens)
+
 
 @cache
 def chunk_NEs(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...]:
@@ -45,13 +53,16 @@ def chunk_NEs(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...]
             )
     return tuple(token for token in doc)
 
+
 @cache
 def remove_non_alnum(words: Tuple[Word, ...]) -> Tuple[Word, ...]:
     return tuple(word for word in words if word.isalnum())
 
+
 @cache
 def lower(words: Tuple[Word, ...]) -> Tuple[Word, ...]:
     return tuple(word.lower() for word in words)
+
 
 @cache
 def remove_stopwords(
@@ -59,11 +70,13 @@ def remove_stopwords(
 ) -> Tuple[spacy.tokens.token.Token, ...]:
     return tuple(token for token in tokens if not token.is_stop)
 
+
 def _extract_input_output_types(func: Callable) -> Tuple[type, type]:
     signature = inspect.signature(func)
     param_types = [param.annotation for param in signature.parameters.values()]
     return_type = signature.return_annotation
     return param_types[0], return_type
+
 
 syntax_functions = [
     get_tokens,
@@ -89,7 +102,10 @@ for func in all_functions:
 def _is_valid_permutation(perm: List[str]) -> bool:
     if function_input_output_types[perm[0].__name__][0] != str:
         return False
-    if function_input_output_types[perm[-1].__name__][1] not in [Tuple[Word, ...], Tuple[PosTag, ...]]:
+    if function_input_output_types[perm[-1].__name__][1] not in [
+        Tuple[Word, ...],
+        Tuple[PosTag, ...],
+    ]:
         return False
     for i in range(len(perm) - 1):
         _, current_func_output_type = function_input_output_types[perm[i].__name__]
@@ -98,7 +114,10 @@ def _is_valid_permutation(perm: List[str]) -> bool:
             return False
     return True
 
-def generate_valid_permutations(functions: List[Callable] = all_functions) -> List[Tuple[Callable, ...]]:
+
+def generate_valid_permutations(
+    functions: List[Callable] = all_functions,
+) -> List[Tuple[Callable, ...]]:
     valid_permutations = []
     for n in range(1, len(functions) + 1):
         for perm in itertools.permutations(functions, n):
@@ -106,20 +125,25 @@ def generate_valid_permutations(functions: List[Callable] = all_functions) -> Li
                 valid_permutations.append(perm)
     return valid_permutations
 
+
 # ====== Scoring methods ======
+
 
 def jaccard_vector(tokens1, tokens2):
     return pd.concat([tokens1, tokens2], axis=1).apply(
         lambda x: 1 - jaccard_distance(set(x.iloc[0]), set(x.iloc[1])), axis=1
     )
 
+
 def apply_steps_to_sentence_incrementally(sentence, steps):
     for i in range(len(steps)):
         sentence = steps[i](sentence)
         yield sentence
 
+
 def apply_steps_to_sentence(sentence, steps):
     return list(apply_steps_to_sentence_incrementally(sentence, steps))[-1]
+
 
 def apply_steps_and_compare_incrementally(s1_values, s2_values, steps):
     for i in range(len(steps)):
@@ -133,6 +157,7 @@ def apply_steps_and_compare_incrementally(s1_values, s2_values, steps):
             s2_tokens = s2_values
 
         yield jaccard_vector(s1_tokens, s2_tokens)
+
 
 def apply_steps_and_compare(s1_values, s2_values, steps):
     return list(apply_steps_and_compare_incrementally(s1_values, s2_values, steps))[-1]
