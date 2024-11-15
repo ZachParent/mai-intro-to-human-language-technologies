@@ -104,28 +104,30 @@ class Word(str):
 # List of processing functions
 functions = [
     sentence_to_doc,
+    get_tokens,
     get_pos_tags,
     lemmatize_tokens,
     get_token_text,
     remove_non_alnum,
     lower,
-    # remove_stopwords
+    remove_stopwords
 ]
 
 # List of processing functions with their input and output types
 function_input_output_types: Dict[str, Tuple[Callable, Tuple[type, type]]] = {
     sentence_to_doc.__name__: (str, spacy.tokens.doc.Doc),
-    get_pos_tags.__name__: (spacy.tokens.doc.Doc, List[PosTag]),
-    get_token_text.__name__: (spacy.tokens.doc.Doc, List[Word]),
-    lemmatize_tokens.__name__: (spacy.tokens.doc.Doc, List[Word]),
+    get_tokens.__name__: (spacy.tokens.doc.Doc, List[spacy.tokens.token.Token]),
+    get_pos_tags.__name__: (List[spacy.tokens.token.Token], List[PosTag]),
+    get_token_text.__name__: (List[spacy.tokens.token.Token], List[Word]),
+    lemmatize_tokens.__name__: (List[spacy.tokens.token.Token], List[Word]),
     remove_non_alnum.__name__: (List[Word], List[Word]),
     lower.__name__: (List[Word], List[Word]),
-    # remove_stopwords.__name__: (List[Word], List[Word]),
+    remove_stopwords.__name__: (List[spacy.tokens.token.Token], List[spacy.tokens.token.Token]),
 }
 
 # Function to check if a permutation is valid based on input/output types
 def is_valid_permutation(perm: List[str]) -> bool:
-    if perm[0].__name__ != sentence_to_doc.__name__:
+    if function_input_output_types[perm[0].__name__][0] != str:
         return False
     if function_input_output_types[perm[-1].__name__][1] not in [List[Word], List[PosTag]]:
         return False
@@ -149,9 +151,10 @@ print(len(valid_permutations))
 sentence = "This is a sample sentence."
 for perm in valid_permutations:
     result = sentence
+    print(f"Processing with order {', '.join(func.__name__ for func in perm)}: {result}")
     for func in perm:
         result = func(result)
-    print(f"Processed with order {', '.join(func.__name__ for func in perm)}: {result}")
+    print(f"Processed: {result}")
 
 
 # %% [markdown]
