@@ -59,8 +59,14 @@ dt.head()
 
 # %%
 # Spacy methods
+def get_tokens(doc):
+    return [token for token in doc]
+
 def sentence_to_doc(sentence):
     return nlp(sentence)
+
+def get_pos_tags(doc_or_tokens):
+    return [token.pos_ for token in doc_or_tokens]
 
 def lemmatize_tokens(tokens):
     return [token.lemma_ for token in tokens]
@@ -81,6 +87,71 @@ def lower(words : list[str]):
 
 def remove_stopwords(doc_or_tokens):
     return [token for token in doc_or_tokens if not token.is_stop]
+
+
+# %%
+import itertools
+from typing import List, Callable, Dict, Tuple
+
+class PosTag(str):
+    """A special string type for part-of-speech tags"""
+    pass
+
+class Word(str):
+    """A special string type for words"""
+    pass
+
+# List of processing functions
+functions = [
+    sentence_to_doc,
+    get_pos_tags,
+    lemmatize_tokens,
+    get_token_text,
+    remove_non_alnum,
+    lower,
+    # remove_stopwords
+]
+
+# List of processing functions with their input and output types
+function_input_output_types: Dict[str, Tuple[Callable, Tuple[type, type]]] = {
+    sentence_to_doc.__name__: (str, spacy.tokens.doc.Doc),
+    get_pos_tags.__name__: (spacy.tokens.doc.Doc, List[PosTag]),
+    get_token_text.__name__: (spacy.tokens.doc.Doc, List[Word]),
+    lemmatize_tokens.__name__: (spacy.tokens.doc.Doc, List[Word]),
+    remove_non_alnum.__name__: (List[Word], List[Word]),
+    lower.__name__: (List[Word], List[Word]),
+    # remove_stopwords.__name__: (List[Word], List[Word]),
+}
+
+# Function to check if a permutation is valid based on input/output types
+def is_valid_permutation(perm: List[str]) -> bool:
+    if perm[0].__name__ != sentence_to_doc.__name__:
+        return False
+    if function_input_output_types[perm[-1].__name__][1] not in [List[Word], List[PosTag]]:
+        return False
+    for i in range(len(perm) - 1):
+        _, current_func_output_type = function_input_output_types[perm[i].__name__]
+        next_func_input_type, _ = function_input_output_types[perm[i + 1].__name__]
+        # Check if the output type of the current function matches the input type of the next function
+        if current_func_output_type != next_func_input_type:
+            return False
+    return True
+
+# Generate all valid permutations
+valid_permutations = []
+for n in range(1, len(functions) + 1):
+    for perm in itertools.permutations(functions, n):
+        if is_valid_permutation(perm):
+            valid_permutations.append(perm)
+print(len(valid_permutations))
+
+# Example of processing a sentence with valid permutations
+sentence = "This is a sample sentence."
+for perm in valid_permutations:
+    result = sentence
+    for func in perm:
+        result = func(result)
+    print(f"Processed with order {', '.join(func.__name__ for func in perm)}: {result}")
 
 
 # %% [markdown]
@@ -136,28 +207,6 @@ def chunk_NEs(doc):
 
 
 # %% [markdown]
-# ## Previous Results
-
-# %%
-steps = [
-    sentence_to_doc,
-    remove_stopwords,
-    lemmatize_tokens,
-    lower,
-    remove_non_alnum
-]
-
-previous_results = pd.DataFrame(
-    { 'score':
-        apply_steps_and_score(dt["s1"], dt["s2"], steps), 
-        f's1[{DEMO_S_IDX}]': apply_steps_to_sentence(dt["s1"].iloc[DEMO_S_IDX], steps),
-        f's2[{DEMO_S_IDX}]': apply_steps_to_sentence(dt["s2"].iloc[DEMO_S_IDX], steps),
-    }, 
-    index=[step.__name__ for step in steps]
-)
-previous_results
-
-# %% [markdown]
 # ## Results including Named Entity chunking
 
 # %%
@@ -198,76 +247,4 @@ for i, v in enumerate(results["score"].values):
     plt.text(i, v, f"{v:.3f}", ha="center", va="bottom", color="white")
 for i, v in enumerate(previous_results["score"].values):
     plt.text(i + 1 if i > 0 else i, v, f"{v:.3f}", ha="center", va="bottom", color="white")
-plt.show()
-
-# %%
-steps = [
-    sentence_to_doc,
-    chunk_NEs,
-    remove_stopwords,
-    lemmatize_tokens,
-    lower,
-    remove_non_alnum
-]
-
-steps_to_skip = [
-    chunk_NEs,
-    remove_stopwords,
-    lower,
-    remove_non_alnum,
-]
-
-leave_one_out_results = pd.DataFrame(columns=["score"])
-
-for step_to_skip in steps_to_skip:
-    steps_to_use = [step for step in steps if step != step_to_skip]
-    print(f"Skipping {step_to_skip.__name__}")
-    scores = list(apply_steps_and_score(dt["s1"], dt["s2"], steps_to_use))
-    leave_one_out_results.loc[step_to_skip.__name__] = scores[-1]
-leave_one_out_results.loc["full_pipeline"] = results.loc[:,"score"].iloc[-1]
-
-leave_one_out_results = leave_one_out_results
-print("Leave one out results:")
-leave_one_out_results
-
-# %%
-# Plot bar chart for leave-one-out results and differences from full pipeline
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10), sharex=True)
-
-fig.suptitle("Analysis of Leave-One-Out Configurations", fontsize=16)
-
-# Original bar chart
-leave_one_out_results.plot(kind="bar", color=["skyblue"], ax=ax1)
-ax1.set_title(
-    "Jaccard Distance Scores for While Skipping One of Each Preprocessing Step"
-)
-ax1.set_ylabel("Pearson correlation with Gold Standard", fontsize=12)
-ax1.invert_yaxis()
-
-# Annotate original bar chart values
-for i, v in enumerate(leave_one_out_results["score"].values):
-    ax1.text(i, v, f"{v:.3f}", ha="center", va="top", color="black")
-
-# Calculate and plot differences from full pipeline
-full_pipeline_score = leave_one_out_results.T["full_pipeline"].values[0]
-differences = leave_one_out_results.subtract(full_pipeline_score)
-differences.plot(kind="bar", color=["lightgreen"], ax=ax2)
-ax2.set_title("Importance of each preprocessing step")
-ax2.set_xlabel("Step Skipped", fontsize=12)
-ax2.set_ylabel("Difference in Pearson correlation", fontsize=12)
-ax2.tick_params(axis="x", rotation=45)
-
-# Annotate difference bar chart values
-ax2.axhline(0, color="white", linewidth=0.5)
-for i, v in enumerate(differences.values):
-    ax2.text(
-        i,
-        v,
-        f"{v[0]:.3f}",
-        ha="center",
-        va="bottom" if v[0] > 0 else "top",
-        color="white",
-    )
-
-plt.tight_layout()
 plt.show()
