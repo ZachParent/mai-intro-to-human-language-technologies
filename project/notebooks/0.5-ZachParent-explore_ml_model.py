@@ -30,7 +30,7 @@ import importlib
 BASE_PATH = "./"
 DEMO_S_IDX = 79
 # N_SAMPLES = np.iinfo(np.int32).max
-N_SAMPLES = 100
+N_SAMPLES = 10
 
 # %%
 dt = pd.read_csv(
@@ -44,9 +44,12 @@ gs = gs.iloc[:N_SAMPLES]
 
 # %%
 valid_permutations = generate_valid_permutations()
+features = []
+feature_steps = []
 for i, perm in enumerate(valid_permutations):
+    features.append(f"score_{i}")
+    feature_steps.append(perm)
     dt[f"score_{i}"] = apply_steps_and_compare(dt.s1, dt.s2, perm)
-features = [f"score_{i}" for i in range(len(valid_permutations))]
 dt.head()
 
 
