@@ -1,10 +1,14 @@
 import spacy
+from nltk.metrics.distance import jaccard_distance
 import itertools
+import pandas as pd
 from typing import List, Callable, Dict, Tuple
 import inspect
 
+
 nlp = spacy.load("en_core_web_sm")
 
+# ====== Feature extraction methods ======
 
 class PosTag(str):
     """A special string type for part-of-speech tags"""
@@ -114,3 +118,34 @@ def generate_valid_permutations(functions: List[Callable] = all_functions) -> Li
             if _is_valid_permutation(perm):
                 valid_permutations.append(perm)
     return valid_permutations
+
+# ====== Scoring methods ======
+
+def jaccard_vector(tokens1, tokens2):
+    return pd.concat([tokens1, tokens2], axis=1).apply(
+        lambda x: 1 - jaccard_distance(set(x.iloc[0]), set(x.iloc[1])), axis=1
+    )
+
+def apply_steps_to_sentence_incrementally(sentence, steps):
+    for i in range(len(steps)):
+        sentence = steps[i](sentence)
+        yield sentence
+
+def apply_steps_to_sentence(sentence, steps):
+    return list(apply_steps_to_sentence_incrementally(sentence, steps))[-1]
+
+def apply_steps_and_compare_incrementally(s1_values, s2_values, steps):
+    for i in range(len(steps)):
+        s1_values = s1_values.apply(steps[i])
+        s2_values = s2_values.apply(steps[i])
+        if s1_values[0].__class__ != list or s1_values[0][0].__class__ != str:
+            s1_tokens = s1_values.apply(get_token_text)
+            s2_tokens = s2_values.apply(get_token_text)
+        else:
+            s1_tokens = s1_values
+            s2_tokens = s2_values
+
+        yield jaccard_vector(s1_tokens, s2_tokens)
+
+def apply_steps_and_compare(s1_values, s2_values, steps):
+    return list(apply_steps_and_compare_incrementally(s1_values, s2_values, steps))[-1]
