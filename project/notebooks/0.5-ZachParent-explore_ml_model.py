@@ -29,8 +29,8 @@ import importlib
 # %%
 BASE_PATH = "./"
 DEMO_S_IDX = 79
-# N_SAMPLES = np.iinfo(np.int32).max
-N_SAMPLES = 10
+N_SAMPLES = np.iinfo(np.int32).max
+# N_SAMPLES = 100
 
 # %%
 dt = pd.read_csv(
