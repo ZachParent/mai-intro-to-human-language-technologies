@@ -72,28 +72,24 @@ def _extract_input_output_types(func: Callable) -> Tuple[type, type]:
     return param_types[0], return_type
 
 
-# List of processing functions
-functions = [
-    sentence_to_doc,
+syntax_functions = [
     get_tokens,
     get_pos_tags,
     lemmatize_tokens,
     get_token_text,
-    chunk_NEs,
-    remove_non_alnum,
-    lower,
-    remove_stopwords,
 ]
+
+semantic_functions = [chunk_NEs, remove_stopwords]
+standard_functions = [sentence_to_doc, remove_non_alnum, lower]
+all_functions = syntax_functions + semantic_functions + standard_functions
 
 # Dictionary to hold function names and their input/output types
 function_input_output_types: Dict[str, Tuple[Tuple[type, ...], type]] = {}
 
 # Populate the dictionary with function names and their input/output types
-for func in functions:
+for func in all_functions:
     input_types, output_type = _extract_input_output_types(func)
     function_input_output_types[func.__name__] = (input_types, output_type)
-
-print(function_input_output_types)
 
 
 # Function to check if a permutation is valid based on input/output types
@@ -111,13 +107,10 @@ def _is_valid_permutation(perm: List[str]) -> bool:
     return True
 
 
-def _generate_valid_permutations() -> List[List[Callable]]:
+def generate_valid_permutations(functions: List[Callable] = all_functions) -> List[List[Callable]]:
     valid_permutations = []
     for n in range(1, len(functions) + 1):
         for perm in itertools.permutations(functions, n):
             if _is_valid_permutation(perm):
                 valid_permutations.append(perm)
     return valid_permutations
-
-
-VALID_PERMUTATIONS = _generate_valid_permutations()
