@@ -63,7 +63,7 @@ valid_permutations = generate_valid_permutations()
 print(len(valid_permutations))
 
 # Example of processing a sentence with valid permutations
-sentence = "This is a sample sentence."
+sentence = "The European Union is a political and economic union of 27 European countries."
 for perm in valid_permutations:
     result = sentence
     print(f"Processing with order {', '.join(func.__name__ for func in perm)}: {result}")

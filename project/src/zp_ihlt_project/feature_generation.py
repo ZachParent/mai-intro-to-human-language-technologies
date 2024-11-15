@@ -1,6 +1,7 @@
 import spacy
 import itertools
 from typing import List, Callable, Dict, Tuple
+import inspect
 
 nlp = spacy.load("en_core_web_sm")
 
@@ -63,6 +64,14 @@ def remove_stopwords(
     return [token for token in doc_or_tokens if not token.is_stop]
 
 
+# Automatically extract input and output types
+def _extract_input_output_types(func: Callable) -> Tuple[type, type]:
+    signature = inspect.signature(func)
+    param_types = [param.annotation for param in signature.parameters.values()]
+    return_type = signature.return_annotation
+    return param_types[0], return_type
+
+
 # List of processing functions
 functions = [
     sentence_to_doc,
@@ -70,26 +79,25 @@ functions = [
     get_pos_tags,
     lemmatize_tokens,
     get_token_text,
+    chunk_NEs,
     remove_non_alnum,
     lower,
     remove_stopwords,
 ]
 
-# List of processing functions with their input and output types
-function_input_output_types: Dict[str, Tuple[Callable, Tuple[type, type]]] = {
-    sentence_to_doc.__name__: (str, spacy.tokens.doc.Doc),
-    get_tokens.__name__: (spacy.tokens.doc.Doc, List[spacy.tokens.token.Token]),
-    get_pos_tags.__name__: (List[spacy.tokens.token.Token], List[PosTag]),
-    get_token_text.__name__: (List[spacy.tokens.token.Token], List[Word]),
-    lemmatize_tokens.__name__: (List[spacy.tokens.token.Token], List[Word]),
-    remove_non_alnum.__name__: (List[Word], List[Word]),
-    lower.__name__: (List[Word], List[Word]),
-    remove_stopwords.__name__: (List[spacy.tokens.token.Token], List[spacy.tokens.token.Token]),
-}
+# Dictionary to hold function names and their input/output types
+function_input_output_types: Dict[str, Tuple[Tuple[type, ...], type]] = {}
+
+# Populate the dictionary with function names and their input/output types
+for func in functions:
+    input_types, output_type = _extract_input_output_types(func)
+    function_input_output_types[func.__name__] = (input_types, output_type)
+
+print(function_input_output_types)
 
 
 # Function to check if a permutation is valid based on input/output types
-def is_valid_permutation(perm: List[str]) -> bool:
+def _is_valid_permutation(perm: List[str]) -> bool:
     if function_input_output_types[perm[0].__name__][0] != str:
         return False
     if function_input_output_types[perm[-1].__name__][1] not in [List[Word], List[PosTag]]:
@@ -103,10 +111,13 @@ def is_valid_permutation(perm: List[str]) -> bool:
     return True
 
 
-def generate_valid_permutations() -> List[List[Callable]]:
+def _generate_valid_permutations() -> List[List[Callable]]:
     valid_permutations = []
     for n in range(1, len(functions) + 1):
         for perm in itertools.permutations(functions, n):
-            if is_valid_permutation(perm):
+            if _is_valid_permutation(perm):
                 valid_permutations.append(perm)
     return valid_permutations
+
+
+VALID_PERMUTATIONS = _generate_valid_permutations()
