@@ -4,46 +4,38 @@ import itertools
 import pandas as pd
 from typing import List, Callable, Dict, Tuple
 import inspect
-
+from functools import cache
 
 nlp = spacy.load("en_core_web_sm")
 
-# ====== Feature extraction methods ======
-
 class PosTag(str):
-    """A special string type for part-of-speech tags"""
-
     pass
-
 
 class Word(str):
-    """A special string type for words"""
-
     pass
 
-
-# Spacy methods
+@cache
 def sentence_to_doc(sentence: str) -> spacy.tokens.doc.Doc:
     return nlp(sentence)
 
+@cache
+def get_tokens(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...]:
+    return tuple(token for token in doc)
 
-def get_tokens(doc: spacy.tokens.doc.Doc) -> List[spacy.tokens.token.Token]:
-    return [token for token in doc]
+@cache
+def get_pos_tags(tokens: Tuple[spacy.tokens.token.Token, ...]) -> Tuple[PosTag, ...]:
+    return tuple(token.pos_ for token in tokens)
 
+@cache
+def lemmatize_tokens(tokens: Tuple[spacy.tokens.token.Token, ...]) -> Tuple[Word, ...]:
+    return tuple(token.lemma_ for token in tokens)
 
-def get_pos_tags(doc_or_tokens: List[spacy.tokens.token.Token]) -> List[PosTag]:
-    return [token.pos_ for token in doc_or_tokens]
+@cache
+def get_token_text(tokens: Tuple[spacy.tokens.token.Token, ...]) -> Tuple[Word, ...]:
+    return tuple(token.text for token in tokens)
 
-
-def lemmatize_tokens(tokens: List[spacy.tokens.token.Token]) -> List[Word]:
-    return [token.lemma_ for token in tokens]
-
-
-def get_token_text(tokens: List[spacy.tokens.token.Token]) -> List[Word]:
-    return [token.text for token in tokens]
-
-
-def chunk_NEs(doc: spacy.tokens.doc.Doc) -> List[spacy.tokens.token.Token]:
+@cache
+def chunk_NEs(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...]:
     with doc.retokenize() as retokenizer:
         tokens = [token for token in doc]
         for ent in doc.ents:
@@ -51,30 +43,27 @@ def chunk_NEs(doc: spacy.tokens.doc.Doc) -> List[spacy.tokens.token.Token]:
                 doc[ent.start : ent.end],
                 attrs={"LEMMA": " ".join([tokens[i].text for i in range(ent.start, ent.end)])},
             )
-    return [token for token in doc]
+    return tuple(token for token in doc)
 
+@cache
+def remove_non_alnum(words: Tuple[Word, ...]) -> Tuple[Word, ...]:
+    return tuple(word for word in words if word.isalnum())
 
-def remove_non_alnum(words: List[Word]) -> List[Word]:
-    return [word for word in words if word.isalnum()]
+@cache
+def lower(words: Tuple[Word, ...]) -> Tuple[Word, ...]:
+    return tuple(word.lower() for word in words)
 
-
-def lower(words: List[Word]) -> List[Word]:
-    return [word.lower() for word in words]
-
-
+@cache
 def remove_stopwords(
-    doc_or_tokens: List[spacy.tokens.token.Token],
-) -> List[spacy.tokens.token.Token]:
-    return [token for token in doc_or_tokens if not token.is_stop]
+    tokens: Tuple[spacy.tokens.token.Token, ...]
+) -> Tuple[spacy.tokens.token.Token, ...]:
+    return tuple(token for token in tokens if not token.is_stop)
 
-
-# Automatically extract input and output types
 def _extract_input_output_types(func: Callable) -> Tuple[type, type]:
     signature = inspect.signature(func)
     param_types = [param.annotation for param in signature.parameters.values()]
     return_type = signature.return_annotation
     return param_types[0], return_type
-
 
 syntax_functions = [
     get_tokens,
@@ -100,18 +89,16 @@ for func in all_functions:
 def _is_valid_permutation(perm: List[str]) -> bool:
     if function_input_output_types[perm[0].__name__][0] != str:
         return False
-    if function_input_output_types[perm[-1].__name__][1] not in [List[Word], List[PosTag]]:
+    if function_input_output_types[perm[-1].__name__][1] not in [Tuple[Word, ...], Tuple[PosTag, ...]]:
         return False
     for i in range(len(perm) - 1):
         _, current_func_output_type = function_input_output_types[perm[i].__name__]
         next_func_input_type, _ = function_input_output_types[perm[i + 1].__name__]
-        # Check if the output type of the current function matches the input type of the next function
         if current_func_output_type != next_func_input_type:
             return False
     return True
 
-
-def generate_valid_permutations(functions: List[Callable] = all_functions) -> List[List[Callable]]:
+def generate_valid_permutations(functions: List[Callable] = all_functions) -> List[Tuple[Callable, ...]]:
     valid_permutations = []
     for n in range(1, len(functions) + 1):
         for perm in itertools.permutations(functions, n):
@@ -138,7 +125,7 @@ def apply_steps_and_compare_incrementally(s1_values, s2_values, steps):
     for i in range(len(steps)):
         s1_values = s1_values.apply(steps[i])
         s2_values = s2_values.apply(steps[i])
-        if s1_values[0].__class__ != list or s1_values[0][0].__class__ != str:
+        if s1_values[0].__class__ != tuple or s1_values[0][0].__class__ != str:
             s1_tokens = s1_values.apply(get_token_text)
             s2_tokens = s2_values.apply(get_token_text)
         else:
