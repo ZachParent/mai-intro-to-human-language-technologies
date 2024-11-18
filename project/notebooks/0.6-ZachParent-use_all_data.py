@@ -18,49 +18,11 @@
 import pandas as pd
 import numpy as np
 from scipy.stats import pearsonr
-from zp_ihlt_project.config import TRAIN_DATA_DIR
+from zp_ihlt_project.load_data import load_train_data
 from zp_ihlt_project.feature_extraction import generate_valid_permutations, apply_steps_and_compare
 
-
 # %%
-# Simple file reader
-def read_data_file(filepath: str) -> pd.DataFrame:
-    with open(filepath, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-        data = [line.strip().split("\t") for line in lines]
-        dt = pd.DataFrame(data, columns=["s1", "s2"])
-    return dt
-
-
-# %%
-INPUT_FILENAME_PATTERN = "STS.input.{}.txt"
-GS_FILENAME_PATTERN = "STS.gs.{}.txt"
-
-input_filenames = sorted(TRAIN_DATA_DIR.glob(INPUT_FILENAME_PATTERN.format("*")))
-gs_filenames = sorted(TRAIN_DATA_DIR.glob(GS_FILENAME_PATTERN.format("*")))
-print(input_filenames)
-print(gs_filenames)
-
-dfs = []
-gs_dfs = []
-for input_filename, gs_filename in zip(input_filenames, gs_filenames):
-    print(f"Processing {input_filename}")
-    
-    # Read the current file
-    curr_df = read_data_file(input_filename)
-    curr_df.columns = ["s1", "s2"]  # Set column names
-    
-    # Read corresponding gold standard
-    curr_gs = pd.read_csv(gs_filename, sep="\t", header=None)
-    
-    # Add to our lists
-    dfs.append(curr_df)
-    gs_dfs.append(curr_gs)
-
-# Concatenate all DataFrames at once
-dt = pd.concat(dfs, ignore_index=True)
-gs = pd.concat(gs_dfs, ignore_index=True)
-dt["gs"] = gs[0]
+dt = load_train_data()
 
 # %%
 print(dt.count())
