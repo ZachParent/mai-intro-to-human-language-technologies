@@ -1,4 +1,5 @@
 import spacy
+import nltk
 from nltk.metrics.distance import jaccard_distance
 import itertools
 import pandas as pd
@@ -7,6 +8,8 @@ import inspect
 from functools import cache
 
 nlp = spacy.load("en_core_web_sm")
+nltk.download("wordnet")
+nltk.download("omw-1.4")
 
 
 class PosTag(str):
@@ -54,6 +57,31 @@ def chunk_NEs(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...]
     return tuple(token for token in doc)
 
 
+POS_TAGS_MAPPING = {
+    "NOUN": "n",
+    "VERB": "v",
+    "ADV": "r",
+}
+
+
+@cache
+def get_synsets(tokens: Tuple[spacy.tokens.token.Token, ...]) -> Tuple[Word, ...]:
+    pos_tags = get_pos_tags(tokens)
+    words = get_token_text(tokens)
+    result = []
+    for word, pos_tag in zip(words, pos_tags):
+        mapped_pos_tag = POS_TAGS_MAPPING.get(pos_tag, None)
+        if mapped_pos_tag is None:
+            result.append(word)
+            continue
+        synset = nltk.wsd.lesk(words, word, mapped_pos_tag)
+        if synset is None:
+            result.append(word)
+            continue
+        result.append(synset.name())
+    return tuple(result)
+
+
 @cache
 def remove_non_alnum(words: Tuple[Word, ...]) -> Tuple[Word, ...]:
     return tuple(word for word in words if word.isalnum())
@@ -83,6 +111,7 @@ syntax_functions = [
     get_pos_tags,
     lemmatize_tokens,
     get_token_text,
+    get_synsets,
 ]
 
 semantic_functions = [chunk_NEs, remove_stopwords]
@@ -130,9 +159,16 @@ def generate_valid_permutations(
 
 
 def jaccard_vector(tokens1, tokens2):
-    return pd.concat([tokens1, tokens2], axis=1).apply(
-        lambda x: 1 - jaccard_distance(set(x.iloc[0]), set(x.iloc[1])), axis=1
-    )
+    def safe_jaccard(x):
+        set1 = set(x.iloc[0])
+        set2 = set(x.iloc[1])
+        union = set1.union(set2)
+        if not union:  # If both sets are empty
+            return 1.0  # Return perfect similarity for empty-empty comparison
+        intersection = set1.intersection(set2)
+        return len(intersection) / len(union)  # Already normalized
+
+    return pd.concat([tokens1, tokens2], axis=1).apply(safe_jaccard, axis=1)
 
 
 def apply_steps_to_sentence_incrementally(sentence, steps):
