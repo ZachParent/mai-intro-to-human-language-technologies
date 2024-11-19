@@ -83,8 +83,6 @@ preds = best_mlp.predict(X_test)
 pearsonr(y_test, preds)
 
 # %% [markdown]
-# `PearsonRResult(statistic=0.6719709905657458, pvalue=0.0)`
+# `PearsonRResult(statistic=0.653254868028039, pvalue=0.0)`
 #
-# Achieves 0.67 on the test set!
-#
-# Need better features!
+# Achieves 0.65 on the test set
