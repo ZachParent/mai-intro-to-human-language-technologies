@@ -5,7 +5,7 @@ import itertools
 import pandas as pd
 from typing import List, Callable, Dict, Tuple
 import inspect
-from functools import cache
+from functools import cache, partial
 
 nlp = spacy.load("en_core_web_sm")
 nltk.download("wordnet")
@@ -19,14 +19,16 @@ class PosTag(str):
 class Word(str):
     pass
 
+class CharacterNgram(str):
+    pass
+
 class WordNgram(Tuple[str, ...]):
     pass
 
-
 @cache
-def get_word_ngrams(words: Tuple[Word, ...], n: int = 3) -> Tuple[WordNgram, ...]:
-    ngrams = [tuple(words[i:i+n]) for i in range(len(words)-n+1)]
-    return tuple(WordNgram(ngram) for ngram in ngrams)
+def get_character_ngrams(sentence: str, n: int = 3) -> Tuple[CharacterNgram, ...]:
+    ngrams = [sentence[i:i+n] for i in range(len(sentence)-n+1)]
+    return tuple(CharacterNgram(ngram) for ngram in ngrams)
 
 @cache
 def sentence_to_doc(sentence: str) -> spacy.tokens.doc.Doc:
@@ -52,6 +54,10 @@ def lemmatize_tokens(tokens: Tuple[spacy.tokens.token.Token, ...]) -> Tuple[Word
 def get_token_text(tokens: Tuple[spacy.tokens.token.Token, ...]) -> Tuple[Word, ...]:
     return tuple(token.text for token in tokens)
 
+@cache
+def get_word_ngrams(words: Tuple[Word, ...], n: int = 3) -> Tuple[WordNgram, ...]:
+    ngrams = [tuple(words[i:i+n]) for i in range(len(words)-n+1)]
+    return tuple(WordNgram(ngram) for ngram in ngrams)
 
 @cache
 def chunk_NEs(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...]:
@@ -123,7 +129,7 @@ syntax_functions = [
 ]
 
 semantic_functions = [chunk_NEs, remove_stopwords, get_word_ngrams]
-standard_functions = [sentence_to_doc, remove_non_alnum, lower]
+standard_functions = [remove_non_alnum, lower]
 all_functions = syntax_functions + semantic_functions + standard_functions
 
 # Dictionary to hold function names and their input/output types
@@ -137,7 +143,7 @@ for func in all_functions:
 
 # Function to check if a permutation is valid based on input/output types
 def _is_valid_permutation(perm: List[str]) -> bool:
-    if function_input_output_types[perm[0].__name__][0] != str:
+    if function_input_output_types[perm[0].__name__][0] != spacy.tokens.doc.Doc:
         return False
     if function_input_output_types[perm[-1].__name__][1] not in [
         Tuple[Word, ...],
@@ -161,6 +167,8 @@ def generate_valid_permutations(
         for perm in itertools.permutations(functions, n):
             if _is_valid_permutation(perm):
                 valid_permutations.append(perm)
+    valid_permutations = [tuple([sentence_to_doc]) + perm for perm in valid_permutations]
+    valid_permutations.append([get_character_ngrams])
     return valid_permutations
 
 

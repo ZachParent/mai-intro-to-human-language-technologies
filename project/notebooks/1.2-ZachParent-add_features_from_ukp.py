@@ -19,8 +19,10 @@ import spacy
 from typing import Tuple
 import nltk
 import numpy as np
+import pandas as pd
+from functools import partial
 
-from zp_ihlt_project.feature_extraction import generate_valid_permutations, apply_steps_and_compare, get_word_ngrams
+from zp_ihlt_project.feature_extraction import generate_valid_permutations, apply_steps_and_compare, get_word_ngrams, get_character_ngrams, sentence_to_doc, get_tokens, get_token_text
 from zp_ihlt_project.load_data import load_train_data
 
 nltk.download("wordnet")
@@ -29,35 +31,19 @@ nltk.download("omw-1.4")
 # %%
 dt = load_train_data()
 
-
-# %%
-def get_character_ngrams(sentence: str, n: int = 3) -> Tuple[str, ...]:
-    ngrams = [sentence[i:i+n] for i in range(len(sentence)-n+1)]
-    return tuple(ngram for ngram in ngrams)
-
-
-get_character_ngrams(dt.s1.iloc[0])
-
-
-# %%
-def get_word_ngrams(sentence: str, n: int = 3) -> Tuple[Tuple[str, ...], ...]:
-    words = sentence.split()
-    ngrams = [tuple(words[i:i+n]) for i in range(len(words)-n+1)]
-    return tuple(ngram for ngram in ngrams)
-
-
-get_word_ngrams(dt.s1.iloc[0])
-
-
-
 # %%
 valid_permutations = generate_valid_permutations()
-features = []
+
+# %%
+feature_names = []
 feature_steps = []
+features = []
+print(f"Generating {len(valid_permutations)} features")
 for i, perm in enumerate(valid_permutations):
-    features.append(f"score_{i}")
+    feature_names.append(f"score_{i}")
     feature_steps.append(perm)
-    dt[f"score_{i}"] = apply_steps_and_compare(dt.s1, dt.s2, perm)
+    features.append(apply_steps_and_compare(dt.s1, dt.s2, perm))
+dt = dt.assign(**{name: feature for name, feature in zip(feature_names, features)})
 dt.head()
 
 # %%
@@ -66,7 +52,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 from scipy.stats import pearsonr
 
-X_train, X_test, y_train, y_test = train_test_split(dt[features], dt.gs, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(dt[feature_names], dt.gs, test_size=0.2, random_state=42)
 
 # Define parameter grid
 param_grid = {
@@ -100,8 +86,6 @@ preds = best_mlp.predict(X_train)
 pearsonr(y_train, preds)
 
 # %%
-
-
 best_mlp = grid_search.best_estimator_
 preds = best_mlp.predict(X_test)
 pearsonr(y_test, preds)
