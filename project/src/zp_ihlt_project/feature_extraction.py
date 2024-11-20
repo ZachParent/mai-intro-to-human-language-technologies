@@ -24,8 +24,7 @@ class WordNgram(Tuple[str, ...]):
 
 
 @cache
-def get_word_ngrams(sentence: str, n: int = 3) -> Tuple[WordNgram, ...]:
-    words = sentence.split()
+def get_word_ngrams(words: Tuple[Word, ...], n: int = 3) -> Tuple[WordNgram, ...]:
     ngrams = [tuple(words[i:i+n]) for i in range(len(words)-n+1)]
     return tuple(WordNgram(ngram) for ngram in ngrams)
 
