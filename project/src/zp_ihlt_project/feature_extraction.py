@@ -30,6 +30,19 @@ def get_character_ngrams(sentence: str, n: int = 3) -> Tuple[CharacterNgram, ...
     ngrams = [sentence[i:i+n] for i in range(len(sentence)-n+1)]
     return tuple(CharacterNgram(ngram) for ngram in ngrams)
 
+def get_character_2grams(sentence: str) -> Tuple[CharacterNgram, ...]:
+    return get_character_ngrams(sentence, 2)
+
+def get_character_3grams(sentence: str) -> Tuple[CharacterNgram, ...]:
+    return get_character_ngrams(sentence, 3)
+
+def get_character_4grams(sentence: str) -> Tuple[CharacterNgram, ...]:
+    return get_character_ngrams(sentence, 4)
+
+def get_character_5grams(sentence: str) -> Tuple[CharacterNgram, ...]:
+    return get_character_ngrams(sentence, 5)
+
+
 @cache
 def sentence_to_doc(sentence: str) -> spacy.tokens.doc.Doc:
     return nlp(sentence)
@@ -168,7 +181,7 @@ def generate_valid_permutations(
             if _is_valid_permutation(perm):
                 valid_permutations.append(perm)
     valid_permutations = [tuple([sentence_to_doc]) + perm for perm in valid_permutations]
-    valid_permutations.append([get_character_ngrams])
+    valid_permutations.extend([[get_character_2grams], [get_character_3grams], [get_character_4grams], [get_character_5grams]])
     return valid_permutations
 
 
