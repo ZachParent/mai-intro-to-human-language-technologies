@@ -6,6 +6,9 @@ import pandas as pd
 from typing import List, Callable, Dict, Tuple
 import inspect
 from functools import cache, partial
+from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances, manhattan_distances
+from sklearn.feature_extraction.text import CountVectorizer
+import numpy as np
 
 nlp = spacy.load("en_core_web_sm")
 nltk.download("wordnet")
@@ -188,33 +191,56 @@ def generate_valid_permutations(
 # ====== Scoring methods ======
 
 
-def jaccard_vector(tokens1, tokens2):
-    def safe_jaccard(x):
+@cache
+def vectorize_sets(set1: set, set2: set) -> np.ndarray:
+    """Convert two sets into binary vectors using their union as vocabulary"""
+    vocabulary = list(set1.union(set2))
+    if not vocabulary:
+        return np.array([[0], [0]])
+    
+    vec1 = np.array([1 if word in set1 else 0 for word in vocabulary])
+    vec2 = np.array([1 if word in set2 else 0 for word in vocabulary])
+    return np.vstack([vec1, vec2])
+
+def compute_similarity(set1: set, set2: set, metric: str = 'jaccard') -> float:
+    """Compute similarity between two sets using specified metric"""
+    if not set1 and not set2:  # Both empty
+        return 1.0
+    if not set1 or not set2:  # One empty
+        return 0.0
+        
+    if metric == 'jaccard':
+        intersection = len(set1.intersection(set2))
+        union = len(set1.union(set2))
+        return intersection / union
+    
+    # Convert sets to vectors for other metrics
+    vectors = vectorize_sets(set1, set2)
+    
+    if metric == 'cosine':
+        return float(cosine_similarity(vectors[0:1], vectors[1:2])[0][0])
+    elif metric == 'euclidean':
+        return float(1 / (1 + euclidean_distances(vectors[0:1], vectors[1:2])[0][0]))
+    elif metric == 'manhattan':
+        return float(1 / (1 + manhattan_distances(vectors[0:1], vectors[1:2])[0][0]))
+    else:
+        raise ValueError(f"Unknown metric: {metric}")
+
+def similarity_vector(tokens1, tokens2, metric: str = 'jaccard'):
+    """Compute similarity vector using specified metric"""
+    def safe_similarity(x):
         set1 = set(x.iloc[0])
         set2 = set(x.iloc[1])
-        union = set1.union(set2)
-        if not union:  # If both sets are empty
-            return 1.0  # Return perfect similarity for empty-empty comparison
-        intersection = set1.intersection(set2)
-        return len(intersection) / len(union)  # Already normalized
+        return compute_similarity(set1, set2, metric)
 
-    return pd.concat([tokens1, tokens2], axis=1).apply(safe_jaccard, axis=1)
+    return pd.concat([tokens1, tokens2], axis=1).apply(safe_similarity, axis=1)
 
-
-def apply_steps_to_sentence_incrementally(sentence, steps):
-    for i in range(len(steps)):
-        sentence = steps[i](sentence)
-        yield sentence
-
-
-def apply_steps_to_sentence(sentence, steps):
-    return list(apply_steps_to_sentence_incrementally(sentence, steps))[-1]
-
-
-def apply_steps_and_compare_incrementally(s1_values, s2_values, steps):
+def apply_steps_and_compare_incrementally(s1_values, s2_values, steps, metric: str = 'jaccard'):
+    """Apply steps and compare incrementally using specified metric"""
     for i in range(len(steps)):
         s1_values = s1_values.apply(steps[i])
         s2_values = s2_values.apply(steps[i])
+        
         if s1_values[0].__class__ == spacy.tokens.doc.Doc or s1_values[0][0].__class__ == spacy.tokens.token.Token:
             s1_tokens = s1_values.apply(get_token_text)
             s2_tokens = s2_values.apply(get_token_text)
@@ -222,8 +248,23 @@ def apply_steps_and_compare_incrementally(s1_values, s2_values, steps):
             s1_tokens = s1_values
             s2_tokens = s2_values
 
-        yield jaccard_vector(s1_tokens, s2_tokens)
+        yield similarity_vector(s1_tokens, s2_tokens, metric)
 
+def apply_steps_and_compare(s1_values, s2_values, steps, metric: str = 'jaccard'):
+    """Apply steps and compare using specified metric"""
+    return list(apply_steps_and_compare_incrementally(s1_values, s2_values, steps, metric))[-1]
 
-def apply_steps_and_compare(s1_values, s2_values, steps):
-    return list(apply_steps_and_compare_incrementally(s1_values, s2_values, steps))[-1]
+def apply_steps_and_compare_all_metrics(s1_values, s2_values, steps):
+    return [apply_steps_and_compare(s1_values, s2_values, steps, metric) for metric in ['jaccard', 'cosine', 'euclidean', 'manhattan']]
+
+# Example usage:
+"""
+# In your notebook:
+metrics = ['jaccard', 'cosine', 'euclidean', 'manhattan']
+for metric in metrics:
+    for i, perm in enumerate(valid_permutations):
+        feature_name = f"score_{metric}_{i}"
+        features.append(feature_name)
+        feature_steps.append(perm)
+        dt[feature_name] = apply_steps_and_compare(dt.s1, dt.s2, perm, metric=metric)
+"""
