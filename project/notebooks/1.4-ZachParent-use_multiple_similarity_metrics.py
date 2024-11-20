@@ -41,8 +41,6 @@ feature_steps = []
 features = []
 print(f"Generating {len(valid_permutations) * len(metrics)} features ({len(valid_permutations)} permutations * {len(metrics)} metrics)")
 for i, perm in enumerate(valid_permutations):
-    feature_names.append(f"score_{i}")
-    feature_steps.append(perm)
     for metric in metrics:
         feature_names.append(f"score_{metric}_{i}")
         feature_steps.append(perm)
@@ -50,10 +48,14 @@ for i, perm in enumerate(valid_permutations):
 dt = dt.assign(**{name: feature for name, feature in zip(feature_names, features)})
 dt.head()
 
+# %% [markdown]
+# `1m41s` to generate features
+#
+
 # %%
 from sklearn.feature_selection import SelectKBest, mutual_info_regression
 
-kbest = SelectKBest(mutual_info_regression, k=80).fit(dt[feature_names], dt.gs)
+kbest = SelectKBest(mutual_info_regression, k=1000).fit(dt[feature_names], dt.gs)
 selected_features = np.array(feature_names)[kbest.get_support()]
 selected_steps = [feature_steps[i] for i in np.where(kbest.get_support())[0]]
 [[step.__name__ for step in steps] for steps in selected_steps]
@@ -103,3 +105,10 @@ pearsonr(y_train, preds)
 best_mlp = grid_search.best_estimator_
 preds = best_mlp.predict(X_test)
 pearsonr(y_test, preds)
+
+# %% [markdown]
+# best run on hidden train data:
+#
+# `PearsonRResult(statistic=0.8429579586878988, pvalue=6.950930344351635e-122)`
+#
+# `57.1s` to train

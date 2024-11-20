@@ -3,7 +3,7 @@ import nltk
 from nltk.metrics.distance import jaccard_distance
 import itertools
 import pandas as pd
-from typing import List, Callable, Dict, Tuple
+from typing import List, Callable, Dict, Tuple, Iterator
 import inspect
 from functools import cache, partial
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances, manhattan_distances
@@ -192,30 +192,32 @@ def generate_valid_permutations(
 
 
 @cache
-def vectorize_sets(set1: set, set2: set) -> np.ndarray:
-    """Convert two sets into binary vectors using their union as vocabulary"""
-    vocabulary = list(set1.union(set2))
+def vectorize_tuples(tup1: Tuple[str, ...], tup2: Tuple[str, ...]) -> np.ndarray:
+    """Convert two tuples into binary vectors using their union as vocabulary"""
+    vocabulary = tuple(sorted(set(tup1).union(set(tup2))))
     if not vocabulary:
         return np.array([[0], [0]])
     
-    vec1 = np.array([1 if word in set1 else 0 for word in vocabulary])
-    vec2 = np.array([1 if word in set2 else 0 for word in vocabulary])
+    vec1 = np.array([1 if word in tup1 else 0 for word in vocabulary])
+    vec2 = np.array([1 if word in tup2 else 0 for word in vocabulary])
     return np.vstack([vec1, vec2])
 
-def compute_similarity(set1: set, set2: set, metric: str = 'jaccard') -> float:
-    """Compute similarity between two sets using specified metric"""
-    if not set1 and not set2:  # Both empty
+@cache
+def compute_similarity(tup1: Tuple[str, ...], tup2: Tuple[str, ...], metric: str = 'jaccard') -> float:
+    """Compute similarity between two tuples using specified metric"""
+    if not tup1 and not tup2:  # Both empty
         return 1.0
-    if not set1 or not set2:  # One empty
+    if not tup1 or not tup2:  # One empty
         return 0.0
         
     if metric == 'jaccard':
+        set1, set2 = set(tup1), set(tup2)
         intersection = len(set1.intersection(set2))
         union = len(set1.union(set2))
         return intersection / union
     
-    # Convert sets to vectors for other metrics
-    vectors = vectorize_sets(set1, set2)
+    # Convert tuples to vectors for other metrics
+    vectors = vectorize_tuples(tup1, tup2)
     
     if metric == 'cosine':
         return float(cosine_similarity(vectors[0:1], vectors[1:2])[0][0])
@@ -226,22 +228,30 @@ def compute_similarity(set1: set, set2: set, metric: str = 'jaccard') -> float:
     else:
         raise ValueError(f"Unknown metric: {metric}")
 
-def similarity_vector(tokens1, tokens2, metric: str = 'jaccard'):
+def similarity_vector(tokens1: pd.Series, tokens2: pd.Series, metric: str = 'jaccard') -> pd.Series:
     """Compute similarity vector using specified metric"""
     def safe_similarity(x):
-        set1 = set(x.iloc[0])
-        set2 = set(x.iloc[1])
-        return compute_similarity(set1, set2, metric)
+        # Convert to tuples for caching
+        tup1 = tuple(sorted(x.iloc[0]))  # Sort for consistent caching
+        tup2 = tuple(sorted(x.iloc[1]))
+        return compute_similarity(tup1, tup2, metric)
 
     return pd.concat([tokens1, tokens2], axis=1).apply(safe_similarity, axis=1)
 
-def apply_steps_and_compare_incrementally(s1_values, s2_values, steps, metric: str = 'jaccard'):
+def apply_steps_and_compare_incrementally(s1_values: pd.Series, 
+                                        s2_values: pd.Series, 
+                                        steps: Tuple[Callable, ...], 
+                                        metric: str = 'jaccard') -> Iterator[pd.Series]:
     """Apply steps and compare incrementally using specified metric"""
     for i in range(len(steps)):
         s1_values = s1_values.apply(steps[i])
         s2_values = s2_values.apply(steps[i])
         
-        if s1_values[0].__class__ == spacy.tokens.doc.Doc or s1_values[0][0].__class__ == spacy.tokens.token.Token:
+        if s1_values.iloc[0].__class__ == spacy.tokens.doc.Doc or (
+            isinstance(s1_values.iloc[0], (tuple, list)) and 
+            len(s1_values.iloc[0]) > 0 and 
+            isinstance(s1_values.iloc[0][0], spacy.tokens.token.Token)
+        ):
             s1_tokens = s1_values.apply(get_token_text)
             s2_tokens = s2_values.apply(get_token_text)
         else:
@@ -250,12 +260,21 @@ def apply_steps_and_compare_incrementally(s1_values, s2_values, steps, metric: s
 
         yield similarity_vector(s1_tokens, s2_tokens, metric)
 
-def apply_steps_and_compare(s1_values, s2_values, steps, metric: str = 'jaccard'):
+def apply_steps_and_compare(s1_values: pd.Series, 
+                          s2_values: pd.Series, 
+                          steps: Tuple[Callable, ...], 
+                          metric: str = 'jaccard') -> pd.Series:
     """Apply steps and compare using specified metric"""
     return list(apply_steps_and_compare_incrementally(s1_values, s2_values, steps, metric))[-1]
 
-def apply_steps_and_compare_all_metrics(s1_values, s2_values, steps):
-    return [apply_steps_and_compare(s1_values, s2_values, steps, metric) for metric in ['jaccard', 'cosine', 'euclidean', 'manhattan']]
+def apply_steps_and_compare_all_metrics(s1_values: pd.Series, 
+                                      s2_values: pd.Series, 
+                                      steps: Tuple[Callable, ...]) -> List[pd.Series]:
+    """Apply steps and compare using all available metrics"""
+    return [
+        apply_steps_and_compare(s1_values, s2_values, steps, metric) 
+        for metric in ['jaccard', 'cosine', 'euclidean', 'manhattan']
+    ]
 
 # Example usage:
 """
