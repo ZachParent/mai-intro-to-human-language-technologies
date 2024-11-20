@@ -19,6 +19,15 @@ class PosTag(str):
 class Word(str):
     pass
 
+class WordNgram(Tuple[str, ...]):
+    pass
+
+
+@cache
+def get_word_ngrams(sentence: str, n: int = 3) -> Tuple[WordNgram, ...]:
+    words = sentence.split()
+    ngrams = [tuple(words[i:i+n]) for i in range(len(words)-n+1)]
+    return tuple(WordNgram(ngram) for ngram in ngrams)
 
 @cache
 def sentence_to_doc(sentence: str) -> spacy.tokens.doc.Doc:
@@ -114,7 +123,7 @@ syntax_functions = [
     get_synsets,
 ]
 
-semantic_functions = [chunk_NEs, remove_stopwords]
+semantic_functions = [chunk_NEs, remove_stopwords, get_word_ngrams]
 standard_functions = [sentence_to_doc, remove_non_alnum, lower]
 all_functions = syntax_functions + semantic_functions + standard_functions
 
@@ -134,6 +143,7 @@ def _is_valid_permutation(perm: List[str]) -> bool:
     if function_input_output_types[perm[-1].__name__][1] not in [
         Tuple[Word, ...],
         Tuple[PosTag, ...],
+        Tuple[WordNgram, ...],
     ]:
         return False
     for i in range(len(perm) - 1):
@@ -185,7 +195,7 @@ def apply_steps_and_compare_incrementally(s1_values, s2_values, steps):
     for i in range(len(steps)):
         s1_values = s1_values.apply(steps[i])
         s2_values = s2_values.apply(steps[i])
-        if s1_values[0].__class__ != tuple or s1_values[0][0].__class__ != str:
+        if s1_values[0].__class__ == spacy.tokens.doc.Doc or s1_values[0][0].__class__ == spacy.tokens.token.Token:
             s1_tokens = s1_values.apply(get_token_text)
             s2_tokens = s2_values.apply(get_token_text)
         else:
