@@ -19,6 +19,7 @@ def read_data_file(filepath: str) -> pd.DataFrame:
 def load_all_data(data_dir: Path) -> pd.DataFrame:
     input_filenames = sorted(data_dir.glob(INPUT_FILENAME_PATTERN.format("*")))
     gs_filenames = sorted(data_dir.glob(GS_FILENAME_PATTERN.format("*")))
+    gs_filenames = [f for f in gs_filenames if "ALL" not in f.name]
 
     dfs = []
     gs_dfs = []
