@@ -23,7 +23,7 @@ import pandas as pd
 from functools import partial
 from sklearn.neural_network import MLPRegressor
 from sklearn.svm import SVR
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, train_test_split
 from scipy.stats import pearsonr
 
 from zp_ihlt_project.config import TRAIN_DATA_DIR, TEST_DATA_DIR
@@ -53,8 +53,7 @@ for dataset in train_datasets:
     dt = all_train_dt[all_train_dt.dataset == dataset]
     test_dt = all_test_dt[all_test_dt.dataset == dataset]
 
-    X_train = dt[selected_features]
-    y_train = dt.gs
+    X_train, X_val, y_train, y_val = train_test_split(dt[selected_features], dt.gs, test_size=0.2, random_state=42)
     X_test = test_dt[selected_features]
     y_test = test_dt.gs
 
@@ -86,24 +85,28 @@ for dataset in train_datasets:
     print("Best RMSE:", np.sqrt(-grid_search.best_score_))
 
     best_mlp = grid_search.best_estimator_
+    best_mlp.fit(X_train, y_train)
     preds = best_mlp.predict(X_train)
     dataset_results.append(pearsonr(y_train, preds)[0])
 
-    best_mlp = grid_search.best_estimator_
+    preds = best_mlp.predict(X_val)
+    dataset_results.append(pearsonr(y_val, preds)[0])
+
     preds = best_mlp.predict(X_test[selected_features])
     dataset_results.append(pearsonr(y_test, preds)[0])
 
     results.append(dataset_results)
 
-results = pd.DataFrame(results, columns=["dataset", "train_pearson", "test_pearson"])
+results = pd.DataFrame(results, columns=["dataset", "train_pearson", "val_pearson", "test_pearson"])
 results
-# %%
-
 # %%
 dt = all_train_dt
 
-X_train = dt[selected_features]
-y_train = dt.gs
+X_train, X_val, y_train, y_val = train_test_split(dt[selected_features], dt.gs, test_size=0.2, random_state=42)
+X_test = all_test_dt[selected_features]
+y_test = all_test_dt.gs
+
+results = []
 
 # Define parameter grid
 param_grid = {
@@ -134,7 +137,19 @@ print("Best RMSE:", np.sqrt(-grid_search.best_score_))
 
 best_mlp = grid_search.best_estimator_
 preds = best_mlp.predict(X_train)
-pearsonr(y_train, preds)
+results.append(pearsonr(y_train, preds)[0])
+
+preds = best_mlp.predict(X_val)
+results.append(pearsonr(y_val, preds)[0])
+
+preds = best_mlp.predict(X_test)
+results.append(pearsonr(y_test, preds)[0])
+
+results = pd.DataFrame([results], columns=["train_pearson", "val_pearson", "test_pearson"], index=["all"])
+results
+
+# %%
+best_mlp.fit(dt[selected_features], dt.gs)
 
 # %%
 train_results = []
@@ -145,24 +160,23 @@ for dataset in datasets:
     dt = all_train_dt[all_train_dt.dataset == dataset]
     test_dt = all_test_dt[all_test_dt.dataset == dataset]
 
-    X_train = dt[selected_features]
-    y_train = dt.gs
+    X_train, X_val, y_train, y_val = train_test_split(dt[selected_features], dt.gs, test_size=0.2, random_state=42)
     X_test = test_dt[selected_features]
     y_test = test_dt.gs
 
     preds = best_mlp.predict(X_train)
     dataset_results.append(pearsonr(y_train, preds)[0])
 
+    preds = best_mlp.predict(X_val)
+    dataset_results.append(pearsonr(y_val, preds)[0])
+
     preds = best_mlp.predict(X_test[selected_features])
     dataset_results.append(pearsonr(y_test, preds)[0])
 
     train_results.append(dataset_results)
 
-train_results = pd.DataFrame(train_results, columns=["dataset", "train_pearson", "test_pearson"])
+train_results = pd.DataFrame(train_results, columns=["dataset", "train_pearson", "val_pearson", "test_pearson"])
 train_results
-# %%
-
-
 # %%
 test_results = []
 datasets = test_datasets
@@ -179,13 +193,11 @@ for dataset in datasets:
 
     test_results.append(dataset_results)
 
+preds = best_mlp.predict(all_test_dt[selected_features])
+test_results.append(['all', pearsonr(all_test_dt.gs, preds)[0]])
 test_results = pd.DataFrame(test_results, columns=["dataset", "test_pearson"])
 test_results
 # %%
-
-
-# %%
-best_mlp = grid_search.best_estimator_
-preds = best_mlp.predict(X_test[selected_features])
-pearsonr(y_test, preds)
+results_to_beat = pd.DataFrame(np.array([[.683, .873, .528, .664, .493, 0.823]]).T, index=[*test_datasets, 'all'], columns=["pearson_to_beat"])
+results_to_beat
 
