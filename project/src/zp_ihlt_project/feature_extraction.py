@@ -33,6 +33,9 @@ def get_character_ngrams(sentence: str, n: int = 3) -> Tuple[CharacterNgram, ...
     ngrams = [sentence[i:i+n] for i in range(len(sentence)-n+1)]
     return tuple(CharacterNgram(ngram) for ngram in ngrams)
 
+def get_character_1grams(sentence: str) -> Tuple[CharacterNgram, ...]:
+    return get_character_ngrams(sentence, 1)
+
 def get_character_2grams(sentence: str) -> Tuple[CharacterNgram, ...]:
     return get_character_ngrams(sentence, 2)
 
@@ -44,6 +47,21 @@ def get_character_4grams(sentence: str) -> Tuple[CharacterNgram, ...]:
 
 def get_character_5grams(sentence: str) -> Tuple[CharacterNgram, ...]:
     return get_character_ngrams(sentence, 5)
+
+def get_character_6grams(sentence: str) -> Tuple[CharacterNgram, ...]:
+    return get_character_ngrams(sentence, 6)
+
+def get_character_7grams(sentence: str) -> Tuple[CharacterNgram, ...]:
+    return get_character_ngrams(sentence, 7)
+
+def get_character_8grams(sentence: str) -> Tuple[CharacterNgram, ...]:
+    return get_character_ngrams(sentence, 8)
+
+def get_character_9grams(sentence: str) -> Tuple[CharacterNgram, ...]:
+    return get_character_ngrams(sentence, 9)
+
+def get_character_10grams(sentence: str) -> Tuple[CharacterNgram, ...]:
+    return get_character_ngrams(sentence, 10)
 
 
 @cache
@@ -74,6 +92,15 @@ def get_token_text(tokens: Tuple[spacy.tokens.token.Token, ...]) -> Tuple[Word, 
 def get_word_ngrams(words: Tuple[Word, ...], n: int = 3) -> Tuple[WordNgram, ...]:
     ngrams = [tuple(words[i:i+n]) for i in range(len(words)-n+1)]
     return tuple(WordNgram(ngram) for ngram in ngrams)
+
+def get_word_2grams(words: Tuple[Word, ...]) -> Tuple[WordNgram, ...]:
+    return get_word_ngrams(words, 2)
+
+def get_word_3grams(words: Tuple[Word, ...]) -> Tuple[WordNgram, ...]:
+    return get_word_ngrams(words, 3)
+
+def get_word_4grams(words: Tuple[Word, ...]) -> Tuple[WordNgram, ...]:
+    return get_word_ngrams(words, 4)
 
 @cache
 def chunk_NEs(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...]:
@@ -144,8 +171,9 @@ syntax_functions = [
     get_synsets,
 ]
 
-semantic_functions = [chunk_NEs, remove_stopwords, get_word_ngrams]
+semantic_functions = [chunk_NEs, remove_stopwords, get_pos_tags]
 standard_functions = [remove_non_alnum, lower]
+ngram_functions = [get_word_2grams, get_word_3grams, get_word_4grams]
 all_functions = syntax_functions + semantic_functions + standard_functions
 
 # Dictionary to hold function names and their input/output types
@@ -158,13 +186,12 @@ for func in all_functions:
 
 
 # Function to check if a permutation is valid based on input/output types
-def _is_valid_permutation(perm: List[str]) -> bool:
+def _is_valid_permutation(perm: Tuple[Callable]) -> bool:
     if function_input_output_types[perm[0].__name__][0] != spacy.tokens.doc.Doc:
         return False
     if function_input_output_types[perm[-1].__name__][1] not in [
         Tuple[Word, ...],
         Tuple[PosTag, ...],
-        Tuple[WordNgram, ...],
     ]:
         return False
     for i in range(len(perm) - 1):
@@ -174,6 +201,10 @@ def _is_valid_permutation(perm: List[str]) -> bool:
             return False
     return True
 
+def add_final_step(perm: Tuple[Callable]) -> Iterator[List[Callable]]:
+    yield perm
+    for func in ngram_functions:
+        yield perm + (func,)
 
 def generate_valid_permutations(
     functions: List[Callable] = all_functions,
@@ -184,7 +215,8 @@ def generate_valid_permutations(
             if _is_valid_permutation(perm):
                 valid_permutations.append(perm)
     valid_permutations = [tuple([sentence_to_doc]) + perm for perm in valid_permutations]
-    valid_permutations.extend([[get_character_2grams], [get_character_3grams], [get_character_4grams], [get_character_5grams]])
+    valid_permutations = [new_perm for perm in valid_permutations for new_perm in add_final_step(perm)]
+    valid_permutations.extend([[get_character_1grams], [get_character_2grams], [get_character_3grams], [get_character_4grams], [get_character_5grams], [get_character_6grams], [get_character_7grams], [get_character_8grams], [get_character_9grams], [get_character_10grams]])
     return valid_permutations
 
 
@@ -276,14 +308,4 @@ def apply_steps_and_compare_all_metrics(s1_values: pd.Series,
         for metric in ['jaccard', 'cosine', 'euclidean', 'manhattan']
     ]
 
-# Example usage:
-"""
-# In your notebook:
-metrics = ['jaccard', 'cosine', 'euclidean', 'manhattan']
-for metric in metrics:
-    for i, perm in enumerate(valid_permutations):
-        feature_name = f"score_{metric}_{i}"
-        features.append(feature_name)
-        feature_steps.append(perm)
-        dt[feature_name] = apply_steps_and_compare(dt.s1, dt.s2, perm, metric=metric)
-"""
+
