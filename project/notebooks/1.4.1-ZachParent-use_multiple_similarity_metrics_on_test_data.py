@@ -82,7 +82,7 @@ X_train, X_test, y_train, y_test = train_test_split(dt[selected_features], dt.gs
 
 # Define parameter grid
 param_grid = {
-    'hidden_layer_sizes': [(200,40), (200, 20), (400, 40), (200, 80), (400, 80), (400, 20)],
+    'hidden_layer_sizes': [(800, 160), (800, 80)],
     'activation': ['tanh'],
     'solver': ['adam']
 }
@@ -115,6 +115,9 @@ pearsonr(y_train, preds)
 best_mlp = grid_search.best_estimator_
 preds = best_mlp.predict(test_dt[selected_features])
 pearsonr(test_dt.gs, preds)
+
+# %%
+grid_search
 
 # %% [markdown]
 # best run on hidden test data:

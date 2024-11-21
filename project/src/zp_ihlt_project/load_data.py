@@ -1,5 +1,6 @@
 import pandas as pd
 from pathlib import Path
+from typing import List
 from zp_ihlt_project.config import (
     INPUT_FILENAME_PATTERN,
     GS_FILENAME_PATTERN,
@@ -16,28 +17,24 @@ def read_data_file(filepath: str) -> pd.DataFrame:
     return dt
 
 
-def load_all_data(data_dir: Path) -> pd.DataFrame:
+def load_all_data_files(data_dir: Path) -> List[pd.DataFrame]:
     input_filenames = sorted(data_dir.glob(INPUT_FILENAME_PATTERN.format("*")))
     gs_filenames = sorted(data_dir.glob(GS_FILENAME_PATTERN.format("*")))
     gs_filenames = [f for f in gs_filenames if "ALL" not in f.name]
 
     dfs = []
-    gs_dfs = []
     for input_filename, gs_filename in zip(input_filenames, gs_filenames):
-        print(f"Processing {input_filename}")
-
         curr_df = read_data_file(input_filename)
-        curr_df.columns = ["s1", "s2"]  # Set column names
-
         curr_gs = pd.read_csv(gs_filename, sep="\t", header=None)
-
+        curr_df["gs"] = curr_gs[0]
+        curr_df["dataset"] = input_filename.name.split(".")[-2]
         dfs.append(curr_df)
-        gs_dfs.append(curr_gs)
+    return dfs
 
-    dt = pd.concat(dfs, ignore_index=True)
-    gs = pd.concat(gs_dfs, ignore_index=True)
-    dt["gs"] = gs[0]
-    return dt
+
+def load_all_data(data_dir: Path) -> pd.DataFrame:
+    dfs = load_all_data_files(data_dir)
+    return pd.concat(dfs, ignore_index=True)
 
 
 def load_train_data() -> pd.DataFrame:
