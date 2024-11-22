@@ -28,14 +28,17 @@ class Character(str):
 class Ngram(Tuple[Word | Character | PosTag, ...]):
     pass
 
+class WordPair(Tuple[Word, Word]):
+    pass
+
 @cache
 def get_characters(words: Tuple[Word, ...]) -> Tuple[Character, ...]:
     sentence = " ".join(words)
     return tuple(Character(char) for char in sentence)
 
 @cache
-def get_word_pairs(words: Tuple[Word, ...]) -> Tuple[Tuple[Word, Word], ...]:
-    return tuple(itertools.combinations(words, 2))
+def get_word_pairs(words: Tuple[Word, ...]) -> Tuple[WordPair, ...]:
+    return tuple(WordPair(pair) for pair in itertools.combinations(words, 2))
 
 @cache
 def sentence_to_doc(sentence: str) -> spacy.tokens.doc.Doc:
@@ -128,6 +131,10 @@ def remove_stopwords(
 ) -> Tuple[spacy.tokens.token.Token, ...]:
     return tuple(token for token in tokens if not token.is_stop)
 
+@cache
+def get_stopwords(tokens: Tuple[spacy.tokens.token.Token, ...]) -> Tuple[spacy.tokens.token.Token, ...]:
+    return tuple(token for token in tokens if token.is_stop)
+
 
 def _extract_input_output_types(func: Callable) -> Tuple[type, type]:
     signature = inspect.signature(func)
@@ -142,6 +149,7 @@ syntax_functions = [
     lemmatize_tokens,
     get_token_text,
     get_synsets,
+    # get_word_pairs,
 ]
 
 semantic_functions = [chunk_NEs, remove_stopwords, get_pos_tags]
