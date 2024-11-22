@@ -33,6 +33,9 @@ def get_characters(words: Tuple[Word, ...]) -> Tuple[Character, ...]:
     sentence = " ".join(words)
     return tuple(Character(char) for char in sentence)
 
+@cache
+def get_word_pairs(words: Tuple[Word, ...]) -> Tuple[Tuple[Word, Word], ...]:
+    return tuple(itertools.combinations(words, 2))
 
 @cache
 def sentence_to_doc(sentence: str) -> spacy.tokens.doc.Doc:
@@ -71,24 +74,6 @@ def get_3grams(words: Tuple[Word | Character | PosTag, ...]) -> Tuple[Ngram, ...
 
 def get_4grams(words: Tuple[Word | Character | PosTag, ...]) -> Tuple[Ngram, ...]:
     return get_ngrams(words, 4)
-
-def get_5grams(words: Tuple[Word | Character | PosTag, ...]) -> Tuple[Ngram, ...]:
-    return get_ngrams(words, 5)
-
-def get_6grams(words: Tuple[Word | Character | PosTag, ...]) -> Tuple[Ngram, ...]:
-    return get_ngrams(words, 6)
-
-def get_7grams(words: Tuple[Word | Character | PosTag, ...]) -> Tuple[Ngram, ...]:
-    return get_ngrams(words, 7)
-
-def get_8grams(words: Tuple[Word | Character | PosTag, ...]) -> Tuple[Ngram, ...]:
-    return get_ngrams(words, 8)
-
-def get_9grams(words: Tuple[Word | Character | PosTag, ...]) -> Tuple[Ngram, ...]:
-    return get_ngrams(words, 9)
-
-def get_10grams(words: Tuple[Word | Character | PosTag, ...]) -> Tuple[Ngram, ...]:
-    return get_ngrams(words, 10)
 
 @cache
 def chunk_NEs(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...]:
@@ -161,7 +146,7 @@ syntax_functions = [
 
 semantic_functions = [chunk_NEs, remove_stopwords, get_pos_tags]
 standard_functions = [remove_non_alnum, lower, get_characters]
-ngram_functions = [get_2grams, get_3grams, get_4grams, get_5grams, get_6grams, get_7grams, get_8grams, get_9grams, get_10grams]
+ngram_functions = [get_2grams, get_3grams, get_4grams]
 all_functions = syntax_functions + semantic_functions + standard_functions
 
 # Dictionary to hold function names and their input/output types
