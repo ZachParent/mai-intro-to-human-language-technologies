@@ -1,13 +1,11 @@
 import spacy
 import nltk
-from nltk.metrics.distance import jaccard_distance
 import itertools
 import pandas as pd
 from typing import List, Callable, Dict, Tuple, Iterator
 import inspect
-from functools import cache, partial
+from functools import cache
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances, manhattan_distances
-from sklearn.feature_extraction.text import CountVectorizer
 import numpy as np
 
 nlp = spacy.load("en_core_web_sm")
@@ -57,12 +55,13 @@ def get_pos_tags(tokens: Tuple[spacy.tokens.token.Token, ...]) -> Tuple[PosTag, 
 
 @cache
 def lemmatize_tokens(tokens: Tuple[spacy.tokens.token.Token, ...]) -> Tuple[Word, ...]:
-    return tuple(token.lemma_ for token in tokens)
+    return tuple(token.lemma_.lower() for token in tokens)
 
 
 @cache
 def get_token_text(tokens: Tuple[spacy.tokens.token.Token, ...]) -> Tuple[Word, ...]:
-    return tuple(token.text for token in tokens)
+    return tuple(token.text.lower() for token in tokens)
+
 
 @cache
 def get_ngrams(words: Tuple[Word | Character | PosTag, ...], n: int = 3) -> Tuple[Ngram, ...]:
@@ -121,11 +120,6 @@ def remove_non_alnum(words: Tuple[Word, ...]) -> Tuple[Word, ...]:
 
 
 @cache
-def lower(words: Tuple[Word, ...]) -> Tuple[Word, ...]:
-    return tuple(word.lower() for word in words)
-
-
-@cache
 def remove_stopwords(
     tokens: Tuple[spacy.tokens.token.Token, ...]
 ) -> Tuple[spacy.tokens.token.Token, ...]:
@@ -149,11 +143,11 @@ syntax_functions = [
     lemmatize_tokens,
     get_token_text,
     get_synsets,
-    # get_word_pairs,
+    get_word_pairs,
 ]
 
-semantic_functions = [chunk_NEs, remove_stopwords, get_pos_tags]
-standard_functions = [remove_non_alnum, lower, get_characters]
+semantic_functions = [chunk_NEs, remove_stopwords, get_pos_tags, get_stopwords]
+standard_functions = [get_characters, remove_non_alnum]
 ngram_functions = [get_2grams, get_3grams, get_4grams]
 all_functions = syntax_functions + semantic_functions + standard_functions
 
@@ -173,6 +167,7 @@ def _is_valid_permutation(perm: Tuple[Callable]) -> bool:
     if function_input_output_types[perm[-1].__name__][1] not in [
         Tuple[Word, ...],
         Tuple[PosTag, ...],
+        Tuple[Character, ...],
     ]:
         return False
     for i in range(len(perm) - 1):
