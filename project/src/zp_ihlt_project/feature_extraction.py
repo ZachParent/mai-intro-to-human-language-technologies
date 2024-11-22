@@ -22,46 +22,16 @@ class PosTag(str):
 class Word(str):
     pass
 
-class CharacterNgram(str):
+class Character(str):
     pass
 
-class WordNgram(Tuple[str, ...]):
+class Ngram(Tuple[Word | Character | PosTag, ...]):
     pass
 
 @cache
-def get_character_ngrams(sentence: str, n: int = 3) -> Tuple[CharacterNgram, ...]:
-    ngrams = [sentence[i:i+n] for i in range(len(sentence)-n+1)]
-    return tuple(CharacterNgram(ngram) for ngram in ngrams)
-
-def get_character_1grams(sentence: str) -> Tuple[CharacterNgram, ...]:
-    return get_character_ngrams(sentence, 1)
-
-def get_character_2grams(sentence: str) -> Tuple[CharacterNgram, ...]:
-    return get_character_ngrams(sentence, 2)
-
-def get_character_3grams(sentence: str) -> Tuple[CharacterNgram, ...]:
-    return get_character_ngrams(sentence, 3)
-
-def get_character_4grams(sentence: str) -> Tuple[CharacterNgram, ...]:
-    return get_character_ngrams(sentence, 4)
-
-def get_character_5grams(sentence: str) -> Tuple[CharacterNgram, ...]:
-    return get_character_ngrams(sentence, 5)
-
-def get_character_6grams(sentence: str) -> Tuple[CharacterNgram, ...]:
-    return get_character_ngrams(sentence, 6)
-
-def get_character_7grams(sentence: str) -> Tuple[CharacterNgram, ...]:
-    return get_character_ngrams(sentence, 7)
-
-def get_character_8grams(sentence: str) -> Tuple[CharacterNgram, ...]:
-    return get_character_ngrams(sentence, 8)
-
-def get_character_9grams(sentence: str) -> Tuple[CharacterNgram, ...]:
-    return get_character_ngrams(sentence, 9)
-
-def get_character_10grams(sentence: str) -> Tuple[CharacterNgram, ...]:
-    return get_character_ngrams(sentence, 10)
+def get_characters(words: Tuple[Word, ...]) -> Tuple[Character, ...]:
+    sentence = " ".join(words)
+    return tuple(Character(char) for char in sentence)
 
 
 @cache
@@ -89,18 +59,36 @@ def get_token_text(tokens: Tuple[spacy.tokens.token.Token, ...]) -> Tuple[Word, 
     return tuple(token.text for token in tokens)
 
 @cache
-def get_word_ngrams(words: Tuple[Word, ...], n: int = 3) -> Tuple[WordNgram, ...]:
+def get_ngrams(words: Tuple[Word | Character | PosTag, ...], n: int = 3) -> Tuple[Ngram, ...]:
     ngrams = [tuple(words[i:i+n]) for i in range(len(words)-n+1)]
-    return tuple(WordNgram(ngram) for ngram in ngrams)
+    return tuple(Ngram(ngram) for ngram in ngrams)
 
-def get_word_2grams(words: Tuple[Word, ...]) -> Tuple[WordNgram, ...]:
-    return get_word_ngrams(words, 2)
+def get_2grams(words: Tuple[Word | Character | PosTag, ...]) -> Tuple[Ngram, ...]:
+    return get_ngrams(words, 2)
 
-def get_word_3grams(words: Tuple[Word, ...]) -> Tuple[WordNgram, ...]:
-    return get_word_ngrams(words, 3)
+def get_3grams(words: Tuple[Word | Character | PosTag, ...]) -> Tuple[Ngram, ...]:
+    return get_ngrams(words, 3)
 
-def get_word_4grams(words: Tuple[Word, ...]) -> Tuple[WordNgram, ...]:
-    return get_word_ngrams(words, 4)
+def get_4grams(words: Tuple[Word | Character | PosTag, ...]) -> Tuple[Ngram, ...]:
+    return get_ngrams(words, 4)
+
+def get_5grams(words: Tuple[Word | Character | PosTag, ...]) -> Tuple[Ngram, ...]:
+    return get_ngrams(words, 5)
+
+def get_6grams(words: Tuple[Word | Character | PosTag, ...]) -> Tuple[Ngram, ...]:
+    return get_ngrams(words, 6)
+
+def get_7grams(words: Tuple[Word | Character | PosTag, ...]) -> Tuple[Ngram, ...]:
+    return get_ngrams(words, 7)
+
+def get_8grams(words: Tuple[Word | Character | PosTag, ...]) -> Tuple[Ngram, ...]:
+    return get_ngrams(words, 8)
+
+def get_9grams(words: Tuple[Word | Character | PosTag, ...]) -> Tuple[Ngram, ...]:
+    return get_ngrams(words, 9)
+
+def get_10grams(words: Tuple[Word | Character | PosTag, ...]) -> Tuple[Ngram, ...]:
+    return get_ngrams(words, 10)
 
 @cache
 def chunk_NEs(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...]:
@@ -172,8 +160,8 @@ syntax_functions = [
 ]
 
 semantic_functions = [chunk_NEs, remove_stopwords, get_pos_tags]
-standard_functions = [remove_non_alnum, lower]
-ngram_functions = [get_word_2grams, get_word_3grams, get_word_4grams]
+standard_functions = [remove_non_alnum, lower, get_characters]
+ngram_functions = [get_2grams, get_3grams, get_4grams, get_5grams, get_6grams, get_7grams, get_8grams, get_9grams, get_10grams]
 all_functions = syntax_functions + semantic_functions + standard_functions
 
 # Dictionary to hold function names and their input/output types
@@ -216,7 +204,6 @@ def generate_valid_permutations(
                 valid_permutations.append(perm)
     valid_permutations = [tuple([sentence_to_doc]) + perm for perm in valid_permutations]
     valid_permutations = [new_perm for perm in valid_permutations for new_perm in add_final_step(perm)]
-    valid_permutations.extend([[get_character_1grams], [get_character_2grams], [get_character_3grams], [get_character_4grams], [get_character_5grams], [get_character_6grams], [get_character_7grams], [get_character_8grams], [get_character_9grams], [get_character_10grams]])
     return valid_permutations
 
 
