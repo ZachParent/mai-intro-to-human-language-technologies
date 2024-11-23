@@ -146,7 +146,7 @@ syntax_functions = [
     get_word_pairs,
 ]
 
-semantic_functions = [chunk_NEs, remove_stopwords, get_pos_tags, get_stopwords]
+semantic_functions = [chunk_NEs, remove_stopwords, get_stopwords]
 standard_functions = [get_characters, remove_non_alnum]
 ngram_functions = [get_2grams, get_3grams, get_4grams]
 all_functions = syntax_functions + semantic_functions + standard_functions
