@@ -137,47 +137,36 @@ def _extract_input_output_types(func: Callable) -> Tuple[type, type]:
     return param_types[0], return_type
 
 
-# Morphological functions (word-level structure)
-morphological_functions = [
-    get_characters,      # Character-level analysis
+# Lexical features (surface form, characters, word forms)
+lexical_functions = [
+    get_characters,      # Character-level patterns
+    get_tokens,          # Word tokenization
+    get_token_text,      # Raw word forms
     remove_non_alnum,    # Character filtering
+    get_word_pairs,      # Word co-occurrences
 ]
 
-# Syntactic functions (grammatical structure)
-syntactic_functions = [
-    get_tokens,          # Basic tokenization
-    get_pos_tags,        # Part of speech tagging
-    get_word_pairs,      # Structural relationships between words
-]
-
-# Semantic functions (meaning)
+# Semantic features (meaning, concepts)
 semantic_functions = [
-    lemmatize_tokens,    # Normalize word forms to base meaning
-    get_synsets,         # Word sense/meaning through WordNet
-    chunk_NEs,           # Named Entity Recognition
+    lemmatize_tokens,    # Normalize to base meaning
+    get_synsets,         # Word meanings/concepts
+    chunk_NEs,           # Named entity grouping
+    get_pos_tags,        # Part of speech (bridges lexical/semantic)
 ]
 
-# Preprocessing functions (text normalization)
-preprocessing_functions = [
-    get_token_text,      # Text normalization
-    remove_stopwords,    # Remove non-semantic words
-    get_stopwords,       # Identify non-semantic words
-]
-
-# Combine all functions for feature generation
-all_functions = (
-    morphological_functions + 
-    syntactic_functions + 
-    semantic_functions + 
-    preprocessing_functions
-)
-
-# N-gram functions (sequential patterns)
 ngram_functions = [
     get_2grams,          # Bigrams
     get_3grams,          # Trigrams
     get_4grams,          # 4-grams
 ]
+
+preprocessing_functions = [
+    remove_stopwords,    # Filter non-content words
+    get_stopwords,       # Identify non-content words
+]
+
+# Keep original all_functions as it was
+all_functions = lexical_functions + semantic_functions + preprocessing_functions
 
 # Dictionary to hold function names and their input/output types
 function_input_output_types: Dict[str, Tuple[Tuple[type, ...], type]] = {}
