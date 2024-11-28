@@ -5,3 +5,6 @@
 * [x] try new similarity metrics
 * [ ] look at [1995_Resnik_semantic-similarity.pdf](../references/1995_Resnik_semantic-similarity.pdf)
 * [ ] standardize feature value ranges
+
+* only the results in the notebook will be considered
+* slides must be submitted by the deadline
