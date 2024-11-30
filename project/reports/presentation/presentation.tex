@@ -64,10 +64,13 @@
         \item Naïve approach which requires no knowledge of the corpus
         \item Use categorized steps to process sentences in every permutation
         \begin{itemize}
-            \item 521 permutations
-            \item e.g. sentence\_to\_doc, chunk\_NEs, remove\_stopwords, lemmatize\_tokens, get\_characters, get\_2grams
+            \item 520 permutations
+            \item e.g. sentence\_to\_doc $\rightarrow$ \texttt{chunk\_NEs} $\rightarrow$ \texttt{remove\_stopwords} $\rightarrow$ \texttt{lemmatize\_tokens} $\rightarrow$ \texttt{get\_characters} $\rightarrow$ \texttt{get\_2grams}
         \end{itemize}
         \item Apply 4 similarity metrics to each permutation
+        \begin{itemize}
+            \item Jaccard, Cosine, Euclidean, Manhattan
+        \end{itemize}
         \item Used Random Forest's feature importance capabilities
         \item Let the data guide feature selection
     \end{itemize}
@@ -75,7 +78,11 @@
 \end{frame}
 
 \subsection{Feature Extraction}
-\begin{frame}[fragile]{Feature Extraction}
+\begin{frame}{Feature Extraction}
+    
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{generate\_valid\_permutations()}}
     \begin{lstlisting}[language=Python]
 # Generate all valid permutations of sentence processing steps
 def generate_valid_permutations(
@@ -97,11 +104,17 @@ def generate_valid_permutations(
     \end{lstlisting}
 \end{frame}
 
-\subsection{Feature Extraction}
-\begin{frame}[fragile]{Feature Extraction}
+\begin{frame}[fragile]{}
     \begin{lstlisting}[language=Python]
 # Dictionary to hold function names and their input/output types
 function_input_output_types: Dict[str, Tuple[Tuple[type, ...], type]] = {}
+
+# Extract the input and output types of a function
+def _extract_input_output_types(func: Callable) -> Tuple[type, type]:
+    signature = inspect.signature(func)
+    param_types = [param.annotation for param in signature.parameters.values()]
+    return_type = signature.return_annotation
+    return param_types[0], return_type
 
 # Populate the dictionary with function names and their input/output types
 for func in all_functions:
@@ -128,7 +141,7 @@ def _is_valid_permutation(perm: Tuple[Callable]) -> bool:
     \end{lstlisting}
 \end{frame}
 
-\begin{frame}[fragile]{Feature Extraction}
+\begin{frame}[fragile]{}
     \begin{lstlisting}[language=Python]
 class PosTag(str): pass
 class Word(str): pass
@@ -165,22 +178,59 @@ lexical_functions = [
     remove_non_alnum,    # Character filtering
     get_word_pairs,      # Word co-occurrences
 ]
+
 semantic_functions = [
     lemmatize_tokens,    # Normalize to base meaning
     get_synsets,         # Word meanings/concepts
     chunk_NEs,           # Named entity grouping
     get_pos_tags,        # Part of speech (bridges lexical/semantic)
 ]
+
 ngram_functions = [
     get_2grams,          # Bigrams
     get_3grams,          # Trigrams
     get_4grams,          # 4-grams
 ]
+
 preprocessing_functions = [
     remove_stopwords,    # Filter non-content words
     get_stopwords,       # Identify non-content words
 ]
+
+all_functions = lexical_functions + semantic_functions + preprocessing_functions
     \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Feature Extraction}
+    Cache is king \{ \textdollar{}, \texteuro{} \}
+    \begin{lstlisting}[language=Python]
+@cache
+def get_tokens(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...]:
+    return tuple(token for token in doc)
+    \end{lstlisting}
+    \begin{itemize}
+        \item Many variations in ordering result in same output
+        \item This is a prime candidate for dynamic programming
+        \item Caching significantly speeds up feature extraction
+        \item 520 processes x 4 metrics = 2080 features
+        \begin{itemize}
+            \item across all \textasciitilde{}5000 sentence pairs takes \textasciitilde{}15 minutes
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\subsection{Model Training}
+\begin{frame}{Model Training}
+    \begin{itemize}
+        \item TODO
+    \end{itemize}
+\end{frame}
+
+\subsection{Model Evaluation}
+\begin{frame}{Model Evaluation}
+    \begin{itemize}
+        \item TODO
+    \end{itemize}
 \end{frame}
 
 % Results
@@ -212,9 +262,7 @@ preprocessing_functions = [
 \section{Conclusions}
 \begin{frame}{Conclusions}
     \begin{itemize}
-        \item Simple features can be highly effective
-        \item Pipeline complexity isn't always better
-        \item Character-level analysis with n-grams shows promise
+        \item TODO
     \end{itemize}
 \end{frame}
 
