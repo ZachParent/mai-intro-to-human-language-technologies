@@ -1,4 +1,12 @@
 \documentclass{beamer}
+\usepackage{listings}
+\lstset{
+    language=Python,
+    basicstyle=\tiny\ttfamily,
+    numbers=left,
+    numberstyle=\tiny,
+    frame=single
+}
 
 % Theme and color settings
 \usetheme{CambridgeUS}
@@ -10,9 +18,9 @@
 \usepackage{url}
 
 % Title information
-\title{Semantic Text Similarity:\\A Feature Importance Analysis}
-\author{Your Name}
-\institute{Universitat Politècnica de Catalunya}
+\title{Naïve Semantic Text Similarity Model}
+\author{Zachary Parent}
+\institute{UPC}
 \date{\today}
 
 \begin{document}
@@ -38,13 +46,51 @@
 \end{frame}
 
 % Approach
-\section{Approach}
+\section{Methodology}
 \begin{frame}{Methodology}
     \begin{itemize}
-        \item Generated ~2000 potential features
+        \item Approach
+        \item Feature extraction
+        \item Feature selection
+        \item Model training
+        \item Model evaluation
+    \end{itemize}
+\end{frame}
+
+\subsection{Approach}
+\begin{frame}{Approach}
+    \begin{itemize}
+        \item Naïve approach which requires no knowledge of the corpus
+        \item Use categorized steps to process sentences in every permutation
+        \begin{itemize}
+            \item 521 permutations
+            \item e.g. sentence\_to\_doc, chunk\_NEs, remove\_stopwords, lemmatize\_tokens, get\_characters, get\_2grams
+        \end{itemize}
+        \item Apply 4 similarity metrics to each permutation
         \item Used Random Forest's feature importance capabilities
         \item Let the data guide feature selection
     \end{itemize}
+
+\end{frame}
+
+\subsection{Feature Extraction}
+\begin{frame}[fragile]{Feature Extraction}
+    \begin{lstlisting}[language=Python]
+def generate_valid_permutations(
+    functions: List[Callable] = all_functions,
+) -> List[Tuple[Callable, ...]]:
+    valid_permutations = []
+    for n in range(1, len(functions) + 1):
+        for perm in itertools.permutations(functions, n):
+            if _is_valid_permutation(perm):
+                valid_permutations.append(perm)
+    valid_permutations = (
+        [tuple([sentence_to_doc]) + perm for perm in valid_permutations])
+    valid_permutations = (
+        [new_perm for perm in valid_permutations for new_perm in add_final_step(perm)])
+    return valid_permutations
+
+    \end{lstlisting}
 \end{frame}
 
 % Results
@@ -55,6 +101,21 @@
         \item Common pipeline steps: lemmatization, stopwords, n-grams
         \item Top feature accounts for 20\% importance
     \end{itemize}
+    \begin{figure}[h]
+        \centering
+        \begin{tabular}{|l|c|}
+            \hline
+            \textbf{Feature Pipeline} & \textbf{Importance} \\
+            \hline
+            score\_jaccard\_165 & 0.197 \\
+            score\_cosine\_257 & 0.089 \\
+            score\_cosine\_165 & 0.069 \\
+            score\_jaccard\_258 & 0.033 \\
+            score\_cosine\_258 & 0.022 \\
+            \hline
+        \end{tabular}
+        \caption{Top 5 Features by Importance}
+    \end{figure}
 \end{frame}
 
 % Conclusions
