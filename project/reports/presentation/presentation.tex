@@ -1,0 +1,70 @@
+\documentclass{beamer}
+
+% Theme and color settings
+\usetheme{CambridgeUS}
+\usecolortheme{default}
+
+% Package imports
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{url}
+
+% Title information
+\title{Semantic Text Similarity:\\A Feature Importance Analysis}
+\author{Your Name}
+\institute{Universitat Politècnica de Catalunya}
+\date{\today}
+
+\begin{document}
+
+% Title frame
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% Table of contents
+\begin{frame}{Outline}
+    \tableofcontents
+\end{frame}
+
+% Introduction
+\section{Introduction}
+\begin{frame}{Introduction}
+    \begin{itemize}
+        \item Semantic Text Similarity (STS) is crucial for many NLP tasks
+        \item Challenge: Which features best capture semantic similarity?
+        \item Our approach: Unbiased feature analysis using Random Forests
+    \end{itemize}
+\end{frame}
+
+% Approach
+\section{Approach}
+\begin{frame}{Methodology}
+    \begin{itemize}
+        \item Generated ~2000 potential features
+        \item Used Random Forest's feature importance capabilities
+        \item Let the data guide feature selection
+    \end{itemize}
+\end{frame}
+
+% Results
+\section{Results}
+\begin{frame}{Top Features}
+    \begin{itemize}
+        \item Jaccard similarity dominates (7 of top 10)
+        \item Common pipeline steps: lemmatization, stopwords, n-grams
+        \item Top feature accounts for 20\% importance
+    \end{itemize}
+\end{frame}
+
+% Conclusions
+\section{Conclusions}
+\begin{frame}{Conclusions}
+    \begin{itemize}
+        \item Simple features can be highly effective
+        \item Pipeline complexity isn't always better
+        \item Character-level analysis with n-grams shows promise
+    \end{itemize}
+\end{frame}
+
+\end{document}
