@@ -165,7 +165,6 @@ preprocessing_functions = [
     get_stopwords,       # Identify non-content words
 ]
 
-# Keep original all_functions as it was
 all_functions = lexical_functions + semantic_functions + preprocessing_functions
 
 # Dictionary to hold function names and their input/output types
