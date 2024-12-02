@@ -79,7 +79,15 @@
 
 \subsection{Feature Extraction}
 \begin{frame}{Feature Extraction}
-    
+    \begin{center}
+        \Large Feature Extraction
+    \end{center}
+\end{frame}
+
+\begin{frame}{Feature Extraction}
+    \begin{center}
+        \includegraphics[width=0.9\textwidth]{figures/mermaid/permutations.md-1.png}
+    \end{center}
 \end{frame}
 
 \begin{frame}[fragile]{\texttt{generate\_valid\_permutations()}}
@@ -222,23 +230,62 @@ def get_tokens(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...
 \subsection{Model Training}
 \begin{frame}{Model Training}
     \begin{itemize}
-        \item TODO
+        \item Random Forest
+        \begin{itemize}
+            \item Built-in feature importance analysis
+            \item Bagging allows discovery of local patterns
+            \item Handles high-dimensional feature spaces well (2080 features)
+            \item Resistant to overfitting
+        \end{itemize}
+        \item Model Configuration
+        \begin{itemize}
+            \item 100 trees in ensemble
+            \item No max depth, since we are interested in identifying fine-grained feature importances
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\subsection{Feature Selection}
+\begin{frame}{Feature Selection}
+    \begin{itemize}
+        \item 520 permutations x 4 metrics = 2080 features
+        \item The random forest model allows us to inspect feature importances
+        \item We used this to identify how important the top features are to the model
+        \item We trained and validated models with different subsets of the top features
     \end{itemize}
 \end{frame}
 
 \subsection{Model Evaluation}
 \begin{frame}{Model Evaluation}
     \begin{itemize}
-        \item TODO
+        \item Multi-level evaluation strategy
+        \begin{itemize}
+            \item Initial 5-fold cross-validation on training set
+            \item 80/20 train/validation split for comparing feature sets
+            \item Held-out test set for final evaluation
+        \end{itemize}
+        \item Custom Pearson correlation scorer
+        \begin{itemize}
+            \item Measures linear correlation with gold standard
+            \item Implemented as sklearn-compatible scoring function
+            \item Allows direct comparison with published results
+        \end{itemize}
     \end{itemize}
 \end{frame}
 
 % Results
 \section{Results}
+\begin{frame}{Results}
+    \begin{itemize}
+        \item 
+    \end{itemize}
+\end{frame}
+
+
 \begin{frame}{Top Features}
     \begin{itemize}
         \item Jaccard similarity dominates (7 of top 10)
-        \item Common pipeline steps: lemmatization, stopwords, n-grams
+        \item Common pipeline steps: lemmatization, remove stopwords, n-grams
         \item Top feature accounts for 20\% importance
     \end{itemize}
     \begin{figure}[h]
