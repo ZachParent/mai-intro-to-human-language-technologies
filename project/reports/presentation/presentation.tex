@@ -3,8 +3,6 @@
 \lstset{
     language=Python,
     basicstyle=\tiny\ttfamily,
-    numbers=left,
-    numberstyle=\tiny,
     frame=single,
     commentstyle=\color{red},
 }
@@ -42,7 +40,7 @@
     \begin{itemize}
         \item Semantic Text Similarity (STS) is crucial for many NLP tasks
         \item Challenge: Which features best capture semantic similarity?
-        \item Our approach: Unbiased feature analysis using Random Forests
+        \item Our approach: Unbiased feature analysis using process pipeline permutations and Random Forests for feature analysis
     \end{itemize}
 \end{frame}
 
@@ -277,32 +275,81 @@ def get_tokens(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...
 \section{Results}
 \begin{frame}{Results}
     \begin{itemize}
-        \item 
+        \item \textbf{Feature Importance}
+        \begin{itemize}
+            \item Top 10 features account for \textasciitilde{}50\% of total importance
+            \item 60\% of features (1,248) have non-zero importance
+            \item Reducing to 500 features shows slight performance loss
+        \end{itemize}
+        \item \textbf{Feature Type Comparison}
+        \begin{itemize}
+            \item Combined features perform best (r = 0.735 on test)
+            \item Lexical features alone achieve strong performance (r = 0.718)
+            \item Semantic features show lower generalization (r = 0.640)
+            \item N-grams important for generalization
+        \end{itemize}
+        \item \textbf{Dataset-Specific Performance}
+        \begin{itemize}
+            \item MSRvid highest performance (r \textgreater{} 0.80)
+            \item SMTnews and SMTeuroparl lower performance (r \textless{} 0.52)
+            \item Performance varies across datasets
+        \end{itemize}
     \end{itemize}
 \end{frame}
 
-
 \begin{frame}{Top Features}
     \begin{itemize}
-        \item Jaccard similarity dominates (7 of top 10)
-        \item Common pipeline steps: lemmatization, remove stopwords, n-grams
-        \item Top feature accounts for 20\% importance
+        \item Jaccard similarity dominates (6 of top 10)
+        \item Common steps: \texttt{sentence\_to\_doc}, \texttt{lemmatize\_tokens}, \texttt{get\_characters}
+        \item N-grams frequently appear, especially 2-grams
     \end{itemize}
     \begin{figure}[h]
         \centering
-        \begin{tabular}{|l|c|}
+        \begin{tabular}{|l|l|c|}
             \hline
-            \textbf{Feature Pipeline} & \textbf{Importance} \\
+            \tiny{\textbf{Feature}} & \tiny{\textbf{Processing Steps}} & \tiny{\textbf{Importance}} \\
             \hline
-            score\_jaccard\_165 & 0.197 \\
-            score\_cosine\_257 & 0.089 \\
-            score\_cosine\_165 & 0.069 \\
-            score\_jaccard\_258 & 0.033 \\
-            score\_cosine\_258 & 0.022 \\
+            \tiny{score\_jaccard\_165} & \tiny{doc → tokens → stopwords → lemma → chars → 2gram} & \tiny{0.197} \\
+            \tiny{score\_cosine\_257} & \tiny{doc → NEs → stopwords → lemma → chars → 2gram} & \tiny{0.089} \\
+            \tiny{score\_cosine\_165} & \tiny{doc → tokens → stopwords → lemma → chars → 2gram} & \tiny{0.069} \\
+            \tiny{score\_jaccard\_258} & \tiny{doc → NEs → stopwords → lemma → chars → 3gram} & \tiny{0.033} \\
+            \tiny{score\_cosine\_258} & \tiny{doc → NEs → stopwords → lemma → chars → 3gram} & \tiny{0.022} \\
+            \tiny{score\_jaccard\_256} & \tiny{doc → NEs → stopwords → lemma → chars} & \tiny{0.021} \\
+            \tiny{score\_jaccard\_257} & \tiny{doc → NEs → stopwords → lemma → chars → 2gram} & \tiny{0.021} \\
+            \tiny{score\_cosine\_166} & \tiny{doc → tokens → stopwords → lemma → chars → 3gram} & \tiny{0.021} \\
+            \tiny{score\_jaccard\_97} & \tiny{doc → NEs → lemma → chars → 2gram} & \tiny{0.019} \\
+            \tiny{score\_jaccard\_41} & \tiny{doc → tokens → lemma → chars → 2gram} & \tiny{0.019} \\
             \hline
         \end{tabular}
-        \caption{Top 5 Features by Importance}
     \end{figure}
+\end{frame}
+
+\begin{frame}{Dataset-Specific Performance}
+    \begin{center}
+        \begin{tabular}{|l|c|c|c|c|}
+            \hline
+            \textbf{Dataset} & \textbf{Without} & \textbf{Without} & \textbf{Without} & \textbf{All} \\
+            & \textbf{Semantic} & \textbf{Lexical} & \textbf{N-grams} & \textbf{Features} \\
+            \hline
+            MSRpar & 0.646 & 0.533 & 0.577 & 0.643 \\
+            MSRvid & 0.813 & 0.811 & 0.807 & 0.839 \\
+            Teuroparl & 0.521 & 0.437 & 0.475 & 0.495 \\
+            OnWN & 0.671 & 0.470 & 0.623 & 0.647 \\
+            SMTnews & 0.451 & 0.367 & 0.438 & 0.420 \\
+            \hline
+            All & 0.718 & 0.639 & 0.686 & 0.734 \\
+            \hline
+        \end{tabular}
+    \end{center}
+    \begin{itemize}
+        \item Key Observations:
+        \begin{itemize}
+            \item MSRvid shows consistently high performance (r \textgreater{} 0.80)
+            \item SMTnews and Teuroparl show lower performance (r \textless{} 0.52)
+            \item Performance varies significantly by dataset
+            \item Lexical features most important across all datasets
+        \end{itemize}
+    \end{itemize}
 \end{frame}
 
 % Conclusions
