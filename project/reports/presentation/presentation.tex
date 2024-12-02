@@ -333,7 +333,7 @@ def get_tokens(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...
             \hline
             MSRpar & 0.646 & 0.533 & 0.577 & 0.643 \\
             MSRvid & 0.813 & 0.811 & 0.807 & 0.839 \\
-            Teuroparl & 0.521 & 0.437 & 0.475 & 0.495 \\
+            SMTeuroparl & 0.521 & 0.437 & 0.475 & 0.495 \\
             OnWN & 0.671 & 0.470 & 0.623 & 0.647 \\
             SMTnews & 0.451 & 0.367 & 0.438 & 0.420 \\
             \hline
@@ -345,7 +345,7 @@ def get_tokens(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...
         \item Key Observations:
         \begin{itemize}
             \item MSRvid shows consistently high performance (r \textgreater{} 0.80)
-            \item SMTnews and Teuroparl show lower performance (r \textless{} 0.52)
+            \item SMTnews and SMTeuroparl show lower performance (r \textless{} 0.52)
             \item Performance varies significantly by dataset
             \item Lexical features most important across all datasets
         \end{itemize}
@@ -356,8 +356,42 @@ def get_tokens(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...
 \section{Conclusions}
 \begin{frame}{Conclusions}
     \begin{itemize}
-        \item TODO
+        \item \textbf{Comprehensive Feature Analysis}
+        \begin{itemize}
+            \item Generated and analyzed 2080 features across lexical, semantic, and n-gram types
+            \item Random Forests effectively identified key features
+        \end{itemize}
+        \item \textbf{Key Findings}
+        \begin{itemize}
+            \item Lexical features alone provide strong performance
+            \item N-grams enhance generalization to unseen data
+            \item Semantic features contribute less to generalization
+        \end{itemize}
+        \item \textbf{Dataset Variability}
+        \begin{itemize}
+            \item Performance varies significantly by dataset
+            \item MSRvid consistently high, SMTnews and SMTeuroparl lower
+        \end{itemize}
     \end{itemize}
+\end{frame}
+
+\begin{frame}{Future Directions}
+    \begin{itemize}
+        \item Explore more advanced processing steps
+        \item Explore limitations of the approach on new domains
+        \item Investigate feature importances on restricted feature sets (e.g. without lexical or without semantic)
+        \item Investigate domain-specific feature engineering
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Thank You}
+    \begin{center}
+        \vspace{2em}
+        \Large Thank you for your attention!
+        \vspace{2em}
+        
+        Questions?
+    \end{center}
 \end{frame}
 
 \end{document}
