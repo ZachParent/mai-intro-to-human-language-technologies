@@ -3,8 +3,10 @@
 * [x] create a way to identify which feature pipelines are most important
     * [x] maybe a table to decode the pipeline in a CSV
 * [x] try new similarity metrics
-* [ ] look at [1995_Resnik_semantic-similarity.pdf](../references/1995_Resnik_semantic-similarity.pdf)
-* [ ] standardize feature value ranges
+* [ ] add explanation for wordpairs and ngrams
+- [ ] add references to UKP and the competition paper
+- [ ] add plots
+	- [ ] make plots light themed
 
 * only the results in the notebook will be considered
 * slides must be submitted by the deadline
