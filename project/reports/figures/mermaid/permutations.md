@@ -2,9 +2,9 @@
 flowchart TD
     %% Styling
     classDef default fill:#2A2A2A,stroke:#7A7A7A,stroke-width:2px,color:white
-    classDef start fill:#FF69B4,stroke:#FF1493,stroke-width:3px,color:white
-    classDef final fill:#FFA07A,stroke:#FF6347,stroke-width:3px,color:white
-    classDef waypoint fill:#4A4A4A,stroke:#7A7A7A,stroke-width:1px,color:white
+    classDef start fill:#8B0000,stroke:#FF0000,stroke-width:3px,color:white
+    classDef final fill:#8B0000,stroke:#FF0000,stroke-width:3px,color:white
+    classDef waypoint fill:#808080,stroke:#A9A9A9,stroke-width:1px,color:white
 
     %% Nodes
     Start([String]):::start
