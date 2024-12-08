@@ -39,7 +39,7 @@
 \begin{frame}{Introduction}
     \begin{itemize}
         \item Semantic Text Similarity (STS) is crucial for many NLP tasks
-        \item Challenge: Which features best capture semantic similarity?
+        \item Challenge: Which features best capture semantic similarity? \cite{10.5555/2387636.2387697}
         \item Our approach: Unbiased feature analysis using process pipeline permutations and Random Forests for feature analysis
     \end{itemize}
 \end{frame}
@@ -80,6 +80,13 @@
     \begin{center}
         \Large Feature Extraction
     \end{center}
+\end{frame}
+
+\subsection{Choosing Processing Steps}
+\begin{frame}{Choosing Processing Steps}
+    \begin{itemize}
+        \item \cite{10.5555/2387636.2387707}
+    \end{itemize}
 \end{frame}
 
 \begin{frame}{Feature Extraction}
@@ -394,4 +401,8 @@ def get_tokens(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...
     \end{center}
 \end{frame}
 
+\bibliographystyle{plain}
+\begin{frame}{References}
+    \bibliography{references}
+\end{frame}
 \end{document}
