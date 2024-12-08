@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "zp_ihlt_project"
-version = "0.0.1"
+version = "0.1.0"
 description = ""
 authors = [
   { name = "Zachary Parent" },
