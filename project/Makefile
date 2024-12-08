@@ -91,6 +91,8 @@ $(ZIP_NAME):
 	cp -r $(PROJECT_DIR)/* $(SUBMISSION_NAME)/ && \
 	zip -r $(SUBMISSION_NAME).zip $(SUBMISSION_NAME) \
 			-x "*/__pycache__/*" "*.pyc" \
+			"*.aux" "*.log" "*.out" "*.toc" "*.bbl" "*.blg" \
+			"*.fls" "*.nav" "*.snm" "*.vrb" "*.fdb_latexmk" "*.synctex.gz" \
 			"*/.venv/*" "*/.git/*" && \
 	rm -rf $(SUBMISSION_NAME) && \
 	mv $(SUBMISSION_NAME).zip $(PROJECT_DIR)/  
