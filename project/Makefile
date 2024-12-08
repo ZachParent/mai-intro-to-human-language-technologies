@@ -23,10 +23,6 @@ ZIP_NAME = $(SUBMISSION_NAME).zip
 # COMMANDS                                                                      #
 #################################################################################
 
-## Run full pipeline
-.PHONY: all
-all: 
-
 ## Install Python Dependencies
 .PHONY: requirements
 requirements:
@@ -63,28 +59,9 @@ create_environment:
 	fi"
 	@echo ">>> New virtualenv created. Activate with:\nworkon $(PROJECT_NAME)"
 
-## Clean all outputs
-.PHONY: clean_data
-clean_data:
-	rm -f $(STAMPS_DIR)/*
-
-## Restamp all stamps, for example after formatting
-.PHONY: restamp
-restamp:
-	touch $(STAMPS_DIR)/*
-
 ## Create distribution zip
 .PHONY: zip
-zip: $(ZIP_NAME)
-
-#################################################################################
-# DATA DEPENDENCIES                                                             #
-#################################################################################
-
-$(STAMPS_DIR):
-	mkdir -p $@
-
-$(ZIP_NAME):
+zip:
 	rm -f $(ZIP_NAME) 
 	cd .. && \
 	mkdir -p $(SUBMISSION_NAME) && \
