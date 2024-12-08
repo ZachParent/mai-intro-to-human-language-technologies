@@ -5,9 +5,9 @@
 * [x] try new similarity metrics
 * [ ] presentation
 	* [ ] add explanation for wordpairs and ngrams
-	- [ ] add references to UKP and the competition paper
-	- [ ] add plots
-		- [ ] make plots light themed
+	- [x] add references to UKP and the competition paper
+	- [x] add plots
+		- [x] make plots light themed
 - [ ] get review from friends
 
 * only the results in the notebook will be considered
