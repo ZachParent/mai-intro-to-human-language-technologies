@@ -1,0 +1,5 @@
+- [ ] add summary to notebooks
+- [ ] rename semantic to syntactic
+- [ ] move code slides to appendix
+- [ ] explain initial results, on known datasets
+- [ ] explain explore directory in README
