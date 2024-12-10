@@ -195,11 +195,11 @@ lexical_functions = [
     get_word_pairs,      # Word co-occurrences
 ]
 
-semantic_functions = [
+syntactic_functions = [
     lemmatize_tokens,    # Normalize to base meaning
     get_synsets,         # Word meanings/concepts
     chunk_NEs,           # Named entity grouping
-    get_pos_tags,        # Part of speech (bridges lexical/semantic)
+    get_pos_tags,        # Part of speech
 ]
 
 ngram_functions = [
@@ -213,7 +213,7 @@ preprocessing_functions = [
     get_stopwords,       # Identify non-content words
 ]
 
-all_functions = lexical_functions + semantic_functions + preprocessing_functions
+all_functions = lexical_functions + syntactic_functions + preprocessing_functions
     \end{lstlisting}
 \end{frame}
 
@@ -389,7 +389,7 @@ def get_tokens(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...
     \begin{itemize}
         \item \textbf{Comprehensive Feature Analysis}
         \begin{itemize}
-            \item Generated and analyzed 2080 features across lexical, semantic, and n-gram types
+            \item Generated and analyzed 2080 features across lexical, syntactic, and n-gram types
             \item Random Forests effectively identified key features
         \end{itemize}
         \item \textbf{Key Findings}
@@ -410,7 +410,7 @@ def get_tokens(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...
     \begin{itemize}
         \item Explore more advanced processing steps
         \item Explore limitations of the approach on new domains
-        \item Investigate feature importances on restricted feature sets (e.g. without lexical or without semantic)
+        \item Investigate feature importances on restricted feature sets (e.g. without lexical or without syntactic)
         \item Investigate domain-specific feature engineering
     \end{itemize}
 \end{frame}

@@ -159,12 +159,12 @@ lexical_functions = [
     get_word_pairs,  # Word co-occurrences
 ]
 
-# Semantic features (meaning, concepts)
-semantic_functions = [
+# Syntactic features (part of speech, meanings)
+syntactic_functions = [
     lemmatize_tokens,  # Normalize to base meaning
     get_synsets,  # Word meanings/concepts
     chunk_NEs,  # Named entity grouping
-    get_pos_tags,  # Part of speech (bridges lexical/semantic)
+    get_pos_tags,  # Part of speech
 ]
 
 ngram_functions = [
@@ -178,7 +178,7 @@ preprocessing_functions = [
     get_stopwords,  # Identify non-content words
 ]
 
-all_functions = lexical_functions + semantic_functions + preprocessing_functions
+all_functions = lexical_functions + syntactic_functions + preprocessing_functions
 
 # Dictionary to hold function names and their input/output types
 function_input_output_types: Dict[str, Tuple[Tuple[type, ...], type]] = {}
