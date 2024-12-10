@@ -2,5 +2,5 @@
 - [x] rename semantic to syntactic
     - [x] rename in ipynb output too
 - [x] move code slides to appendix
-- [ ] explain initial results, on known datasets
+- [x] explain initial results, on known datasets
 - [ ] explain explore directory in README
