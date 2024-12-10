@@ -1,6 +1,6 @@
 - [x] add summary to notebooks
 - [x] rename semantic to syntactic
-    - [ ] rename in ipynb output too
+    - [x] rename in ipynb output too
 - [x] move code slides to appendix
 - [ ] explain initial results, on known datasets
 - [ ] explain explore directory in README

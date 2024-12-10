@@ -38,8 +38,8 @@
 \section{Introduction}
 \begin{frame}{Introduction}
     \begin{itemize}
-        \item Semantic Text Similarity (STS) is crucial for many NLP tasks
-        \item Challenge: Which features best capture semantic similarity? \cite{10.5555/2387636.2387697}
+        \item Syntactic Text Similarity (STS) is crucial for many NLP tasks
+        \item Challenge: Which features best capture syntactic similarity? \cite{10.5555/2387636.2387697}
         \item Our approach: Unbiased feature analysis using process pipeline permutations and Random Forests for feature analysis
     \end{itemize}
 \end{frame}
@@ -195,7 +195,7 @@ def get_tokens(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...
         \begin{itemize}
             \item Combined features perform best (r = 0.736 on test)
             \item Lexical features alone achieve strong performance (r = 0.718)
-            \item Semantic features show lower generalization (r = 0.640)
+            \item Syntactic features show lower generalization (r = 0.640)
             \item N-grams important for generalization
         \end{itemize}
         \item \textbf{Dataset-Specific Performance}
@@ -241,7 +241,7 @@ def get_tokens(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...
         \begin{tabular}{|l|c|c|c|c|}
             \hline
             \textbf{Dataset} & \textbf{Without} & \textbf{Without} & \textbf{Without} & \textbf{All} \\
-            & \textbf{Semantic} & \textbf{Lexical} & \textbf{N-grams} & \textbf{Features} \\
+            & \textbf{Syntactic} & \textbf{Lexical} & \textbf{N-grams} & \textbf{Features} \\
             \hline
             MSRpar & 0.640 & 0.540 & 0.586 & 0.645 \\
             MSRvid & 0.811 & 0.815 & 0.805 & 0.844 \\
@@ -277,7 +277,7 @@ def get_tokens(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...
         \begin{itemize}
             \item Lexical features alone provide strong performance
             \item N-grams enhance generalization to unseen data
-            \item Semantic features contribute less to generalization
+            \item Syntactic features contribute less to generalization
         \end{itemize}
         \item \textbf{Dataset Variability}
         \begin{itemize}
