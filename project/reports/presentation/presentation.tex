@@ -193,7 +193,7 @@ def get_tokens(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...
         \end{itemize}
         \item \textbf{Feature Type Comparison}
         \begin{itemize}
-            \item Combined features perform best (r = 0.734 on test)
+            \item Combined features perform best (r = 0.736 on test)
             \item Lexical features alone achieve strong performance (r = 0.718)
             \item Semantic features show lower generalization (r = 0.640)
             \item N-grams important for generalization
@@ -243,13 +243,13 @@ def get_tokens(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...
             \textbf{Dataset} & \textbf{Without} & \textbf{Without} & \textbf{Without} & \textbf{All} \\
             & \textbf{Semantic} & \textbf{Lexical} & \textbf{N-grams} & \textbf{Features} \\
             \hline
-            MSRpar & 0.646 & 0.533 & 0.577 & 0.643 \\
-            MSRvid & 0.813 & 0.811 & 0.807 & 0.839 \\
-            SMTeuroparl & 0.521 & 0.437 & 0.475 & 0.495 \\
-            OnWN & 0.671 & 0.470 & 0.623 & 0.647 \\
-            SMTnews & 0.451 & 0.367 & 0.438 & 0.420 \\
+            MSRpar & 0.640 & 0.540 & 0.586 & 0.645 \\
+            MSRvid & 0.811 & 0.815 & 0.805 & 0.844 \\
+            SMTeuroparl & 0.520 & 0.440 & 0.466 & 0.499 \\
+            OnWN & 0.669 & 0.465 & 0.628 & 0.652 \\
+            SMTnews & 0.450 & 0.366 & 0.427 & 0.437 \\
             \hline
-            All & 0.718 & 0.639 & 0.686 & 0.734 \\
+            All & 0.712 & 0.637 & 0.690 & 0.736 \\
             \hline
         \end{tabular}
     \end{center}
