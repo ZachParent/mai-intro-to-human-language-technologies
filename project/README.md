@@ -31,6 +31,7 @@ Run [`train_and_evaluate.ipynb`](./notebooks/train_and_evaluate.ipynb) to train 
 - [`notebooks/`](./notebooks/) contains the notebooks used for experimentation and reporting
   - [`extract_features.ipynb`](./notebooks/extract_features.ipynb) contains the code for extracting features from the data
   - [`train_and_evaluate.ipynb`](./notebooks/train_and_evaluate.ipynb) contains the code for training and evaluating the models
+  - [`explore/`](./notebooks/explore/) contains the historical code used while exploring the data and models (not used in the final report)
 - [`reports/`](./reports/) contains the reports for the project
   - [`presentation/`](./reports/presentation/) contains the LaTeX source code for the presentation
     - [`presentation.pdf`](./reports/presentation/presentation.pdf) contains the compiled PDF for the presentation
