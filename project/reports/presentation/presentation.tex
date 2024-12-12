@@ -38,8 +38,11 @@
 \section{Introduction}
 \begin{frame}{Introduction}
     \begin{itemize}
-        \item Syntactic Text Similarity (STS) is crucial for many NLP tasks
-        \item Challenge: Which features best capture syntactic similarity? \cite{10.5555/2387636.2387697}
+        \item Semantic Text Similarity (STS) is crucial for many NLP tasks
+        \item Challenge: Which features best capture semantic similarity?
+        \begin{itemize}
+            \item SemEval-2012 Task 6: A Pilot on Semantic Textual Similarity \cite{10.5555/2387636.2387697}
+        \end{itemize}
         \item Our approach: Unbiased feature analysis using process pipeline permutations and Random Forests for feature analysis
     \end{itemize}
 \end{frame}
@@ -112,6 +115,7 @@ def get_tokens(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...
         \item 520 processes x 4 metrics = 2080 features
         \begin{itemize}
             \item across all \textasciitilde{}5000 sentence pairs takes \textasciitilde{}15 minutes
+            \item 2234 train sentence pairs, 3108 test sentence pairs
         \end{itemize}
     \end{itemize}
 \end{frame}
@@ -293,7 +297,6 @@ def get_tokens(doc: spacy.tokens.doc.Doc) -> Tuple[spacy.tokens.token.Token, ...
         \item Use word embeddings
         \item Explore limitations of the approach on new domains
         \item Investigate feature importances on restricted feature sets (e.g. without lexical or without syntactic)
-        \item Investigate domain-specific feature engineering
     \end{itemize}
 \end{frame}
 
