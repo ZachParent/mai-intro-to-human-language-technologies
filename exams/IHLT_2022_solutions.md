@@ -72,14 +72,20 @@ h = <ti-2, ti-1, ti, w[1:n], i> = <DT, NN, V, the man saw the dog, 3>
 Identify correct features and compute the number of possible histories for a given sequence.
 
 ### Solution
-#### Part 1: Feature Templates
-1. **Template Examples:**
-   - `f1(h): 1 if ti = NN and ti-1 = DT.`
-   - `f2(h): 1 if ti = V and wi = dog.`
-
-#### Part 2: Possible Histories
-- Number of tags: \(|T| = 4\).
-- Sequence length \(n\): Possible histories = \(n \times |T|^3\).
+#### Part (a): Possible Histories
+- Number of tags: (DT, NN, V, ADV, PREP).
+- For a fixed value of , the number of possible histories is: 125
+#### Part (b): Correct Features
+1. `f1(h): 1 if ti = V and ti-1 = PREP.` **Correct**: Relates current tag to previous.
+2. `f2(h): 1 if ti = V and wi-2 = dog.` **Incorrect**: Uses a word too far from current state.
+3. `f3(h): 1 if ti = V and ti-3 = NN.` **Incorrect**: Relates tags too far apart.
+4. `f4(h): 1 if ti = V and ti-1 = PREP and w2 = dog.` **Correct**: Combines tag context with specific word condition.
+#### Part (c): Features Evaluated on Given History
+- **History:**
+1. `f1(h): 1 if ti = NN and wi = dog.` **Correct**: Matches ti = NN and wi = dog in the given history.
+2. `f2(h): 1 if ti-1 = DT and wi = dog.` **Correct**: Matches ti-1 = DT and wi = dog in the given history.
+3. `f3(h): 1 if ti = DT and wi+1 = dog.` **Incorrect**: ti = NN, not DT, in the given history.
+4. `f4(h): 1 if ti = NN and ti-1 = DT.` **Correct**: Matches ti = NN and ti-1 = DT in the given history.
 
 ---
 
