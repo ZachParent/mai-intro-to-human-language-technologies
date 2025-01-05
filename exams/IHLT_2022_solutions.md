@@ -89,30 +89,33 @@ Identify correct features and compute the number of possible histories for a giv
 
 ---
 
-## Exercise 3: WordNet Similarity for WSD
+## Exercise 3: True/False Annotation and Justification
 
 ### Problem
-Disambiguate "flies" in "Time flies like an arrow" using WordNet.
+Annotate as True/False the following sentences. Justify briefly all your decisions.
+
+a) We want to learn automatically a mention-pair model for identity noun-phrase coreference resolution...
+1. ... and, therefore, we can use Support Vector Machines.
+2. ... because it is the most informed type of model for identity noun-phrase coreference resolution.
+3. ... and, therefore, we can use Hidden Markov Models.
+
+b) Given the following subgraph of WordNet:
+
+1. **beer (0)** is so similar to **liquid (4)** than to **drug (4)** assuming Shortest Path Length similarity.
+2. **beer (0)** is so similar to **liquid (4)** than to **drug (4)** assuming Wu & Palmer similarity.
+3. **drug (4)** is less similar to **beer (0)** than to **beverage (3)** assuming Wu & Palmer similarity.
 
 ### Solution
-#### Step 1: Synset Definitions
-From WordNet:
-- S1: (n) fly, flies (insects).
-- S2: (v) fly (to move through air).
-- S3: (v) fly (to run away).
 
-#### Step 2: Lesk Algorithm
-Overlap contexts "flies like an arrow" with definitions:
-- S1: No match.
-- S2: Matches "move through air" (arrow context).
-- S3: Matches "run away" (no arrow relevance).
+#### Part (a)
+1. **True**: Support Vector Machines (SVMs) are commonly used for classification tasks, including mention-pair models in coreference resolution.
+2. **False**: While SVMs are effective, they are not necessarily the most informed type of model for this task. Other models like neural networks may provide more nuanced understanding.
+3. **False**: Hidden Markov Models (HMMs) are typically used for sequence prediction tasks, not for mention-pair models in coreference resolution.
 
-#### Final Result
-- Disambiguated sense: S2 (fly, move through air).
+#### Part (b)
+1. **True**: Using Shortest Path Length similarity, **beer (0)** is closer to **liquid (4)** than to **drug (4)** in the hierarchy.
+2. **True**: Wu & Palmer similarity measures semantic relatedness based on the depth of the two concepts in the taxonomy and their least common subsumer. **Beer (0)** is more similar to **liquid (4)** than to **drug (4)**.
+3. **True**: According to Wu & Palmer similarity, **drug (4)** is less similar to **beer (0)** than to **beverage (3)** because **beverage (3)** is a more direct ancestor of **beer (0)**.
 
 ---
 
-## Summary
-- **Exercise 1:** Best parse tree resolves "Time flies" as S -> NP VP.
-- **Exercise 2:** CRF features and histories are structured based on contextual relationships.
-- **Exercise 3:** Lesk algorithm disambiguates "flies" to mean "move through air."
