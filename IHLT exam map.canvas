@@ -1,0 +1,21 @@
+{
+	"nodes":[
+		{"id":"391aa3a2cba7f6b5","x":-560,"y":60,"width":520,"height":140,"type":"file","file":"ihlt/exams/IHLT_2022_solutions.md"},
+		{"id":"7a43a28e71f02834","x":-560,"y":240,"width":520,"height":140,"type":"file","file":"ihlt/exams/IHLT_2022_alternative.md"},
+		{"id":"de886d8ec470d675","x":-780,"y":190,"width":120,"height":50,"type":"text","text":"# 2022"},
+		{"id":"bd958d6b097b0ed4","type":"text","text":"# 2023","x":0,"y":190,"width":120,"height":50},
+		{"id":"68d053c1cd31275d","x":-1120,"y":-290,"width":520,"height":140,"type":"file","file":"ihlt/IHLT exam techniques.md"},
+		{"id":"e7e2255237a59de1","x":-1120,"y":-480,"width":520,"height":150,"type":"file","file":"ihlt/IHLT summary.md"},
+		{"id":"d15a9678ac40801a","x":220,"y":60,"width":520,"height":140,"type":"file","file":"ihlt/exams/IHLT_2023_solutions.md"},
+		{"id":"532fbb1ab2d8b34c","x":220,"y":240,"width":520,"height":140,"type":"file","file":"ihlt/exams/IHLT_2023_alternative.md"},
+		{"id":"b763461e8553414e","x":-1120,"y":-100,"width":520,"height":140,"type":"file","file":"ihlt/IHLT exam solutions.md"},
+		{"id":"4ba95fc7adb21372","x":220,"y":-360,"width":520,"height":400,"type":"file","file":"ihlt/exams/IHLT_2023.pdf"},
+		{"id":"135f75b4c06c26af","x":-560,"y":-360,"width":520,"height":400,"type":"file","file":"ihlt/exams/IHLT_2022.pdf"}
+	],
+	"edges":[
+		{"id":"df2ba71c857d4a80","fromNode":"de886d8ec470d675","fromSide":"right","toNode":"391aa3a2cba7f6b5","toSide":"left"},
+		{"id":"dd64173bbdffe939","fromNode":"de886d8ec470d675","fromSide":"right","toNode":"7a43a28e71f02834","toSide":"left"},
+		{"id":"79e804c0a88a66cd","fromNode":"bd958d6b097b0ed4","fromSide":"right","toNode":"d15a9678ac40801a","toSide":"left"},
+		{"id":"b901c87baa7c2220","fromNode":"bd958d6b097b0ed4","fromSide":"right","toNode":"532fbb1ab2d8b34c","toSide":"left"}
+	]
+}
