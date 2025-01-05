@@ -110,7 +110,7 @@ b) Given the following subgraph of WordNet:
 #### Part (a)
 1. **True**: Support Vector Machines (SVMs) are commonly used for classification tasks, including mention-pair models in coreference resolution.
 2. **False**: While SVMs are effective, they are not necessarily the most informed type of model for this task. Other models like neural networks may provide more nuanced understanding.
-3. **False**: Hidden Markov Models (HMMs) are typically used for sequence prediction tasks, not for mention-pair models in coreference resolution.
+3. **False**: Hidden Markov Models (HMMs) are typically used for sequence prediction tasks, not for mention-pair models in coreference resolution. HMMs are generative models that model the joint distribution of the sequence and the tags, which is not the case for mention-pair models.
 
 #### Part (b)
 1. **True**: Using Shortest Path Length similarity, **beer (0)** is closer to **liquid (4)** than to **drug (4)** in the hierarchy.

@@ -11,9 +11,13 @@
 ### 2. **Part-of-Speech (PoS) Tagging**
    - **Hidden Markov Models (HMMs)**:
      - Viterbi Algorithm: Finds the best sequence of PoS tags.
-     - Dynamic table: Represents states and probabilities.
+	     - Dynamic table: Represents states and probabilities.
    - **Conditional Random Fields (CRFs)**:
      - Feature templates include word position, neighboring tags, and specific word patterns.
+	     - parameters like state has to be A and prev state has to be B
+     - Feature functions
+	     - when you assign specific values to A and B
+	 - BIO
 
 ### 3. **Parsing**
    - **Context-Free Grammar (CFG) and Probabilistic CFG (PCFG):**
@@ -21,13 +25,15 @@
      - Using CKY Algorithm for parsing:
        - Dynamic tables to calculate probabilities and generate parse trees.
        - Identifying syntactic ambiguities and resolving them.
-   - **Dependency Parsing:** Focuses on syntactic relationships between words.
+   - ~~**Dependency Parsing:** Focuses on syntactic relationships between words.~~
+   - We use **Constituent Trees**
 
 ### 4. **Coreference Resolution**
    - **Mention Pair Models:**
      - Closest-first and best-first strategies for identifying coreferences.
      - Training examples with positive and negative pairs.
    - **CRF for Coreference:** Incorporates features like pronouns, distances, and syntactic patterns.
+   - ==practice this==
 
 ### 5. **Named Entity Recognition and Classification (NERC)**
    - **Regular Expressions for NERC:**
@@ -36,19 +42,22 @@
    - **BIO Tagging with CRFs:**
      - Feature templates involving current and neighboring words, states, and prefixes/suffixes.
 
+- for NERC, we are interested in individual types of NE. for NPs we don't care
+
 ### 6. **Word Sense Disambiguation (WSD)**
    - **Simplified Lesk Algorithm:**
      - Determines the best WordNet synset based on overlapping contexts.
      - Requires additional information like synonyms and collocations.
+     - ==practice this==
    - **Support Vector Machines (SVMs) and CRFs:**
      - Used to learn WSD models with features like surrounding words and syntactic dependencies.
 
-### 7. **Temporal Expressions**
+### 7. ~~**Temporal Expressions**~~
    - **Representation Formalisms:**
      - CFG or semantic grammars extended with semantic features.
      - Lambda calculus for time interval analysis.
 
-### 8. **Semantic Parsing**
+### 8. ~~**Semantic Parsing**~~
    - **Semantic Role Labeling:**
      - Identifying agent, patient, and other semantic roles using annotated corpora.
    - **Lambda Calculus and Semantic Features:**
@@ -68,3 +77,12 @@
 4. **Regular Expressions:** Write and refine patterns for tasks like NERC and morphological analysis.
 5. **Annotated Corpora:** Review annotated examples for coreference and semantic role labeling.
 
+
+HMMs = generative
+CRFs = discriminative
+
+generative = maximizing *joint* probability P(A,B)
+	find a sentence that best fits in the ruleset
+discriminative = maximizing *conditional* probability P(A|B)
+	classification
+	e.g. mention pair model
